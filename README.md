@@ -7,6 +7,6 @@ My brother complained that there is no simple application which you can just sel
 
 
 ### TODO
-- [] Add 2 more Tabs using flutter's built-in widgets.
-- [] Swipable sidebar with income calculator and more options.
-- [] Add Date Picker to the bottom, with this the user can select how much he/she works in a shift.
+- [ ] Add 2 more Tabs using flutter's built-in widgets.
+- [ ] Swipable sidebar with income calculator and more options.
+- [ ] Add Date Picker to the bottom, with this the user can select how much he/she works in a shift.
