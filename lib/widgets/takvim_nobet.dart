@@ -4,6 +4,7 @@ import 'package:flutter_calendar_carousel/classes/event_list.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart'
     show CalendarCarousel;
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -78,14 +79,15 @@ class _TakvimNobetState extends State<TakvimNobet> {
     //check if they cancelled all their dates
     if (_datesList.length == 0) {
       flutterLocalNotificationsPlugin.cancelAll();
-    } else { //this bit is probably inefficient but this is what the notification plugin allows
+    } else {
+      //this bit is probably inefficient but this is what the notification plugin allows
       flutterLocalNotificationsPlugin.cancelAll();
       for (int i = 0; i < _datesList.length; i++) {
         flutterLocalNotificationsPlugin.schedule(
             i,
             'Yakınlarda nöbetin var!',
             'Ayın ${DateTime.fromMillisecondsSinceEpoch(_datesList[i]).day}. gününde nöbetin var.',
-            DateTime.fromMillisecondsSinceEpoch(_datesList[i]).subtract(Duration(hours: 5)),
+            DateTime.fromMillisecondsSinceEpoch(_datesList[i]).subtract(Duration(days: 1)),
             platform);
       }
     }
@@ -144,6 +146,14 @@ class _TakvimNobetState extends State<TakvimNobet> {
                   return a.toString();
                 }).toList());
             _scheduledNotification();
+            Fluttertoast.showToast(
+                msg: 'Günlerin kaydedildi, bildirimler hazırlandı.',
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIos: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0);
           },
         ),
       ),

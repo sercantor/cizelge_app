@@ -7,10 +7,14 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Icon(Icons.healing),
+        title: Icon(Icons.work),
       ),
-      body: Center(
-        child: TakvimNobet(),
+      body: Column(
+        children: <Widget>[
+          Center(
+            child: TakvimNobet(),
+          ),
+        ],
       ),
     );
   }
