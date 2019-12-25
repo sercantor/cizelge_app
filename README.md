@@ -13,7 +13,8 @@ This is a simple scheduling application I made for my brother. It uses Calendar 
 My brother complained that there is no simple application which you can just select dates on a calendar and not deal with configuring stuff, he works in a hospital so with this application he can just mark the dates and it will notify him about when his next night shift is.
 
 
-### TODO
+
+## TODO
 - [ ] Adding one more tab for another schedule, this is required for hospital workers.
 - [ ] Swipable sidebar with income calculator and more options.
 - [ ] Possibly some network features?
