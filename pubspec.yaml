@@ -1,4 +1,4 @@
-name: cizelge_app_fix
+name: cizelge_app
 description: A new Flutter project.
 
 # The following defines the version and build number for your application.
@@ -14,7 +14,7 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -23,14 +23,17 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
-  flutter_calendar_carousel: ^1.4.10
-  flutter_local_notifications: ^0.8.4+3
+  flutter_calendar_carousel: ^1.4.11
   shared_preferences: 0.5.3+5
-  fluttertoast: ^3.1.3 
+  provider: ^4.0.4
+  cloud_firestore: ^0.13.4+1
+  firebase_core: ^0.4.4+2
+  firebase_auth: ^0.15.5+2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  
 
 
 # For information on the generic Dart part of this file, see the

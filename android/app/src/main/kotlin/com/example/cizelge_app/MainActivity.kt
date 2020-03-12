@@ -1,4 +1,4 @@
-package com.example.cizelge_app_fix
+package com.example.cizelge_app
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity
