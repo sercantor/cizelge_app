@@ -2,12 +2,14 @@ import 'package:cizelge_app/models/room.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cizelge_app/services/auth.dart';
+import 'package:cizelge_app/services/database.dart';
 
 class AddRoomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final room = Provider.of<Room>(context);
     final AuthService _auth = AuthService();
+    final DatabaseService _db = DatabaseService();
     TextEditingController roomIdController = TextEditingController();
     TextEditingController userIdController = TextEditingController();
 
@@ -69,6 +71,7 @@ class AddRoomButton extends StatelessWidget {
                             child: Text('Onayla'),
                             onPressed: () async {
                               _auth.signInAnon();
+                              _db.updateUserData(userIdController.text);
                             },
                           ),
                         ),

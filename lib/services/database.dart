@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseService {
-  final CollectionReference datePrefs = Firestore.instance.collection('dates');
+  final DocumentReference datePrefs = Firestore.instance.collection('rooms').document('room1').collection('users').document('user1');
 
-  Future updateUserData(DateTime date) async{
-    return await datePrefs.document().setData({'dates': date});
+  Future updateUserData(String displayID) async{
+    return await datePrefs.updateData({'displayname': displayID});
   }
 }
