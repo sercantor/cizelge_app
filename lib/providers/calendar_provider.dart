@@ -73,12 +73,12 @@ class CalendarProvider with ChangeNotifier {
 
   updateUserData(DateTime date) async {
     final CollectionReference datePrefs =
-        Firestore.instance.collection('dates');
-
+        Firestore.instance.collection('rooms').document('room1').collection('users');
     if (_datesList.contains(date.millisecondsSinceEpoch)) {
-      return await datePrefs.document('$date').setData({'dates': date});
+      return await datePrefs.document('user1').updateData({'dates': _datesList});
     } else {
-      return await datePrefs.document('$date').delete();
+    _datesList.remove(date.millisecondsSinceEpoch);
+      return await datePrefs.document('user1').updateData({'dates': _datesList});
     }
   }
 }
