@@ -11,10 +11,15 @@ class Calendar extends StatelessWidget {
     var calendarProvider = Provider.of<CalendarProvider>(context);
 
     return CalendarCarousel(
-      onDayPressed: (DateTime date, List<Event> events) {
+      onDayPressed: (DateTime date, List<Event> events) async{
         calendarProvider.setDateCursor(date);
         calendarProvider.setDate(date);
-        calendarProvider.updateUserData(date); 
+        if(await calendarProvider.checkIfInRoom()) {
+          calendarProvider.updateUserData(date);
+        }
+      },
+      onDayLongPressed: (DateTime date) {
+        
       },
       locale: 'TR',
       height: 500,

@@ -71,14 +71,22 @@ class CalendarProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  updateUserData(DateTime date) async {
-    final DocumentReference datePrefs =
-        Firestore.instance.collection('rooms').document('room1').collection('users').document('user1');
-    if (_datesList.contains(date.millisecondsSinceEpoch)) {
-      return await datePrefs.updateData({'dates': _datesList});
-    } else {
-    _datesList.remove(date.millisecondsSinceEpoch);
-      return await datePrefs.updateData({'dates': _datesList});
-    }
+  Future<bool> checkIfInRoom() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('roomid') != null && prefs.getString('displayid') != null) {return true;} else {return false;}
+  }
+
+   updateUserData(DateTime date) async {
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+     String roomID = prefs.getString('roomid');
+     String displayID = prefs.getString('displayid');
+     final DocumentReference datePrefs =
+         Firestore.instance.collection('rooms').document('$roomID').collection('users').document('$displayID');
+      if (_datesList.contains(date.millisecondsSinceEpoch)) {
+        return await datePrefs.updateData({'dates': _datesList});
+      } else {
+      _datesList.remove(date.millisecondsSinceEpoch);
+        return await datePrefs.updateData({'dates': _datesList});
+      }
   }
 }
