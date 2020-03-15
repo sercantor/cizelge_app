@@ -5,11 +5,8 @@ class DatabaseService {
   final CollectionReference _datePrefs = Firestore.instance.collection('rooms');
 
   Future setUserData(String roomID, String displayID) async {
-    DocumentReference indivRef =
-        _datePrefs.document('$roomID/users/$displayID');
-    roomID != null && displayID != null
-        ? indivRef.setData({'displayid': displayID})
-        : print('oda ve kullanic ismi girilmedi');
+    roomID != null ? _datePrefs.document('$roomID').setData({'roomid': roomID}) : print('oda');
+    displayID != null ? _datePrefs.document('$roomID').collection('users').document('$displayID').setData({'displayid': displayID}) : print('kull');
   }
 
   Future saveRoomDataLocal(String roomID, String displayID) async {
@@ -66,4 +63,5 @@ class DatabaseService {
       });
     });
   }
+
 }
