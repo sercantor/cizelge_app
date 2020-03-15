@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CalendarProvider with ChangeNotifier {
   DateTime _dateCursor;
@@ -69,24 +68,5 @@ class CalendarProvider with ChangeNotifier {
           return a.toString();
         }).toList());
     notifyListeners();
-  }
-
-  Future<bool> checkIfInRoom() async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString('roomid') != null && prefs.getString('displayid') != null) {return true;} else {return false;}
-  }
-
-   updateUserData(DateTime date) async {
-     SharedPreferences prefs = await SharedPreferences.getInstance();
-     String roomID = prefs.getString('roomid');
-     String displayID = prefs.getString('displayid');
-     final DocumentReference datePrefs =
-         Firestore.instance.collection('rooms').document('$roomID').collection('users').document('$displayID');
-      if (_datesList.contains(date.millisecondsSinceEpoch)) {
-        return await datePrefs.updateData({'dates': _datesList});
-      } else {
-      _datesList.remove(date.millisecondsSinceEpoch);
-        return await datePrefs.updateData({'dates': _datesList});
-      }
   }
 }

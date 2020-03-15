@@ -9,17 +9,17 @@ class Calendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var calendarProvider = Provider.of<CalendarProvider>(context);
+    final DatabaseService _db = DatabaseService();
 
     return CalendarCarousel(
-      onDayPressed: (DateTime date, List<Event> events) async{
+      onDayPressed: (DateTime date, List<Event> events) {
         calendarProvider.setDateCursor(date);
         calendarProvider.setDate(date);
-        if(await calendarProvider.checkIfInRoom()) {
-          calendarProvider.updateUserData(date);
-        }
       },
-      onDayLongPressed: (DateTime date) {
-        
+      onDayLongPressed: (DateTime date) async {
+        if (await _db.checkIfInRoom()) {
+          _db.printLongPress(date);
+        }
       },
       locale: 'TR',
       height: 500,

@@ -1,3 +1,4 @@
+import 'package:cizelge_app/widgets/send_data_button.dart';
 import 'package:flutter/material.dart';
 import 'package:cizelge_app/widgets/calendar.dart';
 import 'package:cizelge_app/widgets/add_room.dart';
@@ -14,6 +15,7 @@ class HomePage extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Calendar(),
+              SendDataButton(),
             ],
           ),
         ),
