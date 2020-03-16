@@ -1,19 +1,29 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class DatabaseService {
-  final CollectionReference _datePrefs = Firestore.instance.collection('rooms');
+class DatabaseService with ChangeNotifier{
+  Firestore _db;
+  String _roomRef;
+  String _userRef;
 
-  Future setUserData(String roomID, String displayID) async {
-    roomID != null ? _datePrefs.document('$roomID').setData({'roomid': roomID}) : print('oda');
-    displayID != null ? _datePrefs.document('$roomID').collection('users').document('$displayID').setData({'displayid': displayID}) : print('kull');
+  DatabaseService(){
+    _db = Firestore.instance;
+    _roomRef = 'def';
+    _userRef = 'def';
   }
 
-  Future saveRoomDataLocal(String roomID, String displayID) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('roomid', roomID);
-    prefs.setString('displayid', displayID);
+  // setters
+  setReferences() {
+    _roomRef = _db.collection('rooms').document().documentID;
+    _userRef = _db.collection('rooms').document('$_roomRef').collection('users').document().documentID;
+    notifyListeners();
   }
+
+  // getters
+  String get roomRef => _roomRef;
+  String get userRef => _userRef;
 
   Future<String> get roomName async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -25,43 +35,32 @@ class DatabaseService {
     return prefs.getString('displayid');
   }
 
-  Future<bool> checkIfInRoom() async {
+  setRoomData(String roomID) {
+    _db.collection('rooms').document('$_roomRef').setData({'roomid': roomID});
+  }
+  setUserData(String displayID){
+    _db.collection('rooms').document('$_roomRef').collection('users').document('$_userRef').setData({'displayid': displayID});
+  }
+
+  Future saveRoomDataLocal(String roomID, String displayID) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString('roomid') != null &&
-        prefs.getString('displayid') != null) {
-      return true;
-    } else {
-      return false;
-    }
+    prefs.setString('roomid', roomID);
+    prefs.setString('displayid', displayID);
   }
 
   updateUserData(List<int> datesList) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String roomID = prefs.getString('roomid');
-    String displayID = prefs.getString('displayid');
-    final DocumentReference datePrefs = Firestore.instance
-        .collection('rooms')
-        .document('$roomID')
-        .collection('users')
-        .document('$displayID');
-    return await datePrefs.updateData({'dates': datesList});
+    print(_roomRef);
+    print(_userRef);
+    Firestore.instance.collection('rooms')
+    .document('$_roomRef')
+    .collection('users')
+    .document('$_userRef').updateData({'dates': datesList});
   }
 
-  Future<void> printLongPress(DateTime date) async {
+  Future<String> getRoomID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String roomID = prefs.getString('roomid');
-
-    Firestore.instance
-        .collection('rooms')
-        .document('$roomID')
-        .collection('users')
-        .where('dates', arrayContains: date.millisecondsSinceEpoch)
-        .getDocuments()
-        .then((snapshot) {
-      snapshot.documents.forEach((doc) {
-        print(doc['displayid']);
-      });
-    });
+    return roomID;
   }
-
+  
 }

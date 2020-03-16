@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
@@ -9,20 +10,60 @@ class Calendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var calendarProvider = Provider.of<CalendarProvider>(context);
-    final DatabaseService _db = DatabaseService();
-
+    var db = Provider.of<DatabaseService>(context);
     return CalendarCarousel(
       onDayPressed: (DateTime date, List<Event> events) {
         calendarProvider.setDateCursor(date);
         calendarProvider.setDate(date);
       },
-      onDayLongPressed: (DateTime date) async {
-        if (await _db.checkIfInRoom()) {
-          _db.printLongPress(date);
-        }
+      onDayLongPressed: (DateTime date) {
+        String roomID = db.roomRef;
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              child: Container(
+                height: 450,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    children: <Widget>[
+                      StreamBuilder( //TODO: move this widget to somewhere else
+                          stream: Firestore.instance
+                              .collection('rooms')
+                              .document(roomID)
+                              .collection('users')
+                              .where('dates',
+                                  arrayContains: date.millisecondsSinceEpoch)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return CircularProgressIndicator();
+                            }
+                            return Container(
+                              height: 400,
+                              width: 100,
+                              child: ListView.builder(
+                                  itemCount: snapshot.data.documents.length,
+                                  itemBuilder: (context, index) {
+                                    return _buildList(context,
+                                        snapshot.data.documents[index]);
+                                  }),
+                            );
+                          })
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
       },
       locale: 'TR',
-      height: 500,
+      height: 400,
       width: 340,
       selectedDateTime: calendarProvider.dateCursor,
       markedDatesMap: calendarProvider.markedDateMap,
@@ -30,6 +71,12 @@ class Calendar extends StatelessWidget {
       thisMonthDayBorderColor: Colors.grey,
       selectedDayButtonColor: Colors.green,
       minSelectedDate: DateTime.now().subtract(Duration(days: 1)),
+    );
+  }
+
+  Widget _buildList(BuildContext context, DocumentSnapshot document) { //TODO: move this widget to somewhere else
+    return ListTile(
+      title: Text(document['displayid']),
     );
   }
 }
