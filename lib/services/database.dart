@@ -10,30 +10,19 @@ class DatabaseService with ChangeNotifier{
 
   DatabaseService(){
     _db = Firestore.instance;
-    _roomRef = 'def';
-    _userRef = 'def';
   }
 
   // setters
-  setReferences() {
+  setReferences() async{
     _roomRef = _db.collection('rooms').document().documentID;
     _userRef = _db.collection('rooms').document('$_roomRef').collection('users').document().documentID;
+
     notifyListeners();
   }
 
   // getters
   String get roomRef => _roomRef;
   String get userRef => _userRef;
-
-  Future<String> get roomName async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('roomid');
-  }
-
-  Future<String> get displayName async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('displayid');
-  }
 
   setRoomData(String roomID) {
     _db.collection('rooms').document('$_roomRef').setData({'roomid': roomID});
@@ -48,13 +37,21 @@ class DatabaseService with ChangeNotifier{
     prefs.setString('displayid', displayID);
   }
 
+  saveReferencesToLocal()async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('roomkey', '$_roomRef');
+    prefs.setString('userkey', '$_userRef');
+  }
+
   updateUserData(List<int> datesList) async {
-    print(_roomRef);
-    print(_userRef);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String roomRef = prefs.getString('roomkey');
+    String userRef = prefs.getString('userkey');
+
     Firestore.instance.collection('rooms')
-    .document('$_roomRef')
+    .document('$roomRef')
     .collection('users')
-    .document('$_userRef').updateData({'dates': datesList});
+    .document('$userRef').updateData({'dates': datesList});
   }
 
   Future<String> getRoomID() async {

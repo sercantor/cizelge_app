@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Cizelge App',
-        home: Provider<DatabaseService>(
+        home: ChangeNotifierProvider<DatabaseService>(
           create: (context) => DatabaseService(),
           child: ChangeNotifierProvider<CalendarProvider>(
             create: (context) => CalendarProvider(),

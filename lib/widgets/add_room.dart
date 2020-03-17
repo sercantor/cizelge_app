@@ -9,8 +9,10 @@ class AddRoomButton extends StatelessWidget {
     var db = Provider.of<DatabaseService>(context);
     TextEditingController roomIdController = TextEditingController();
     TextEditingController userIdController = TextEditingController();
-    TextEditingController newRoomIdController = TextEditingController(); //TODO: change naming 
-    TextEditingController newUserIdController = TextEditingController(); //TODO: change naming 
+    TextEditingController newRoomIdController =
+        TextEditingController(); //TODO: change naming
+    TextEditingController newUserIdController =
+        TextEditingController(); //TODO: change naming
 
     return FloatingActionButton(
         onPressed: () {
@@ -24,7 +26,7 @@ class AddRoomButton extends StatelessWidget {
                 child: Container(
                   height: 600,
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 12.0),
+                    padding: EdgeInsets.fromLTRB(12.0, 20.0, 12.0, 12.0),
                     child: SingleChildScrollView(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -69,29 +71,23 @@ class AddRoomButton extends StatelessWidget {
                               child: Text('Onayla'),
                               onPressed: () async {
                                 db.setReferences();
-                                db.setRoomData(roomIdController.text,
-                                    );
-                                    db.setUserData(userIdController.text);
-                                db.saveRoomDataLocal(roomIdController.text,
-                                    userIdController.text);
+                                db.setRoomData(roomIdController.text);
+                                db.setUserData(userIdController.text);
+                                db.saveRoomDataLocal(roomIdController.text, userIdController.text);
+                                db.saveReferencesToLocal();
                               },
                             ),
                           ),
                           Center(
                             child: RaisedButton(
                               child: Text('Oda Anahtarini Goster'),
-                              onPressed: () async {
-                                String a = db.roomRef;
-                                print(a);
-                              },
+                              onPressed: () async {},
                             ),
                           ),
                           Center(
                             child: RaisedButton(
                               child: Text('Odaya gir'),
-                              onPressed: () async {
-                              
-                              },
+                              onPressed: () async {},
                             ),
                           ),
                           Container(
