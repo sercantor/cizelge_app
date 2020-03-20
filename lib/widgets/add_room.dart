@@ -13,6 +13,7 @@ class AddRoomButton extends StatelessWidget {
         TextEditingController(); //TODO: change naming
     TextEditingController newUserIdController =
         TextEditingController(); //TODO: change naming
+    bool showRoomKey = false;
 
     return FloatingActionButton(
         onPressed: () {
@@ -73,21 +74,26 @@ class AddRoomButton extends StatelessWidget {
                                 db.setReferences();
                                 db.setRoomData(roomIdController.text);
                                 db.setUserData(userIdController.text);
-                                db.saveRoomDataLocal(roomIdController.text, userIdController.text);
+                                db.saveRoomDataLocal(roomIdController.text,
+                                    userIdController.text);
                                 db.saveReferencesToLocal();
                               },
                             ),
                           ),
                           Center(
                             child: RaisedButton(
-                              child: Text('Oda Anahtarini Goster'),
-                              onPressed: () async {},
+                              child: Text('Odadan Cik'),
+                              onPressed: () {
+                                db.exitRoom();
+                              },
                             ),
                           ),
                           Center(
                             child: RaisedButton(
                               child: Text('Odaya gir'),
-                              onPressed: () async {},
+                              onPressed: () {
+                                db.addUserToRoom(newUserIdController.text);
+                              },
                             ),
                           ),
                           Container(
