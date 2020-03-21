@@ -25,10 +25,6 @@ class DatabaseService with ChangeNotifier {
     notifyListeners();
   }
 
-  // getters
-  String get roomRef => _roomRef;
-  String get userRef => _userRef;
-
   setRoomData(String roomID) {
     _db.collection('rooms').document('$_roomRef').setData({'roomid': roomID});
   }
@@ -67,6 +63,8 @@ class DatabaseService with ChangeNotifier {
         .updateData({'dates': datesList});
   }
 
+  //unofficial getters? idk what I'm doing at this point
+
   Future<String> getRoomKey() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String roomKey = prefs.getString('roomkey');
@@ -79,22 +77,26 @@ class DatabaseService with ChangeNotifier {
     return userKey;
   }
 
-  addUserToRoom(String displayID) async {
+  addUserToRoom(String displayID, String roomKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String roomKey = await getRoomKey();
     _userRef = Firestore.instance
         .collection('rooms')
         .document(roomKey)
         .collection('users')
         .document()
         .documentID;
-    Firestore.instance
+
+    var query = Firestore.instance
         .collection('rooms')
-        .document(roomKey)
-        .collection('users')
-        .document(_userRef)
-        .setData({'displayid': displayID});
-    prefs.setString('userkey', _userRef);
+        .document(roomKey);
+
+    query.get().then((doc) {
+      if (doc.exists) {
+        query.setData({'displayid': displayID});
+        prefs.setString('userkey', _userRef);
+        prefs.setString('roomkey', _roomRef);
+      } else{ print('room does not exist');}
+    });
   }
 
   exitRoom() async {
@@ -108,11 +110,9 @@ class DatabaseService with ChangeNotifier {
         .getDocuments()
         .then((snapshot) {
       if (snapshot.documents.length == 1) {
-        print(snapshot.documents.length);
+        //this is potentially bad for scaling, though I assume rooms are not going to be above 15-20 users
         _db.collection('rooms').document(roomKey).delete();
       } else {
-        print('else e girdim');
-        print(snapshot.documents.length);
         _db
             .collection('rooms')
             .document(roomKey)
@@ -121,7 +121,6 @@ class DatabaseService with ChangeNotifier {
             .delete();
       }
     });
-
     prefs.remove('userkey');
     prefs.remove('roomkey');
   }

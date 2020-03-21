@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:cizelge_app/services/database.dart';
 import 'package:provider/provider.dart';
 
+//TODO: convert this to stateful widget so I can display the RoomID and such when the user clicks
 class AddRoomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var db = Provider.of<DatabaseService>(context);
     TextEditingController roomIdController = TextEditingController();
     TextEditingController userIdController = TextEditingController();
-    TextEditingController newRoomIdController =
+    TextEditingController newRoomKeyController =
         TextEditingController(); //TODO: change naming
     TextEditingController newUserIdController =
         TextEditingController(); //TODO: change naming
@@ -92,7 +93,7 @@ class AddRoomButton extends StatelessWidget {
                             child: RaisedButton(
                               child: Text('Odaya gir'),
                               onPressed: () {
-                                db.addUserToRoom(newUserIdController.text);
+                                db.addUserToRoom(newUserIdController.text, newRoomKeyController.text);
                               },
                             ),
                           ),
@@ -114,7 +115,7 @@ class AddRoomButton extends StatelessWidget {
                             child: TextFormField(
                               autofocus: false,
                               maxLengthEnforced: true,
-                              controller: newRoomIdController,
+                              controller: newRoomKeyController,
                               maxLength: 20,
                               decoration: InputDecoration(
                                   prefixIcon: Icon(Icons.home),

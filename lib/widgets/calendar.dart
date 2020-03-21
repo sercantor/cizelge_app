@@ -16,8 +16,8 @@ class Calendar extends StatelessWidget {
         calendarProvider.setDateCursor(date);
         calendarProvider.setDate(date);
       },
-      onDayLongPressed: (DateTime date) {
-        String roomID = db.roomRef;
+      onDayLongPressed: (DateTime date) async{
+        String roomID = await db.getRoomKey();
         showDialog(
           context: context,
           builder: (BuildContext context) {
