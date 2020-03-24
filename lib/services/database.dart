@@ -7,13 +7,12 @@ class DatabaseService with ChangeNotifier {
   Firestore _db;
   String _roomRef;
   String _userRef;
-  bool _showRoomKey = false;
 
   DatabaseService() {
     _db = Firestore.instance;
   }
 
-  bool get showRoomKey => _showRoomKey;
+  String get roomRef => _roomRef;
 
   // setters
   setReferences() async {
@@ -66,8 +65,6 @@ class DatabaseService with ChangeNotifier {
         .updateData({'dates': datesList});
   }
 
-  //unofficial getters? idk what I'm doing at this point
-
   Future<String> getRoomKey() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String roomKey = prefs.getString('roomkey');
@@ -89,17 +86,22 @@ class DatabaseService with ChangeNotifier {
         .document()
         .documentID;
 
-    var query = Firestore.instance
-        .collection('rooms')
-        .document(roomKey);
+    var query = Firestore.instance.collection('rooms').document(roomKey);
 
     query.get().then((doc) {
       if (doc.exists) {
-        query.collection('users').document(_userRef).setData({'displayid': displayID});
+        query
+            .collection('users')
+            .document(_userRef)
+            .setData({'displayid': displayID});
         prefs.setString('userkey', _userRef);
         prefs.setString('roomkey', _roomRef);
-      } else{ print('room does not exist');}
+        _roomRef = roomKey;
+      } else {
+        print('Odaya Girilemedi');
+      }
     });
+    notifyListeners();
   }
 
   exitRoom() async {
@@ -126,10 +128,6 @@ class DatabaseService with ChangeNotifier {
     });
     prefs.remove('userkey');
     prefs.remove('roomkey');
-  }
-
-  changeBool() {
-    _showRoomKey = !_showRoomKey;
     notifyListeners();
   }
 }

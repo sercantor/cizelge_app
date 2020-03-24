@@ -1,4 +1,4 @@
-import 'package:cizelge_app/widgets/add_room_contents.dart';
+import 'package:cizelge_app/screens/add_room_contents.dart';
 import 'package:flutter/material.dart';
 import 'package:cizelge_app/services/database.dart';
 import 'package:provider/provider.dart';
@@ -15,12 +15,10 @@ class _AddRoomButtonState extends State<AddRoomButton> {
     return FloatingActionButton(
         onPressed: () {
           final db = Provider.of<DatabaseService>(context, listen: false);
-          showDialog(
-            context: context,
-            builder: (context) {
-              return ChangeNotifierProvider.value(value: db, child:AddRoomContents());
-            },
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return ChangeNotifierProvider.value(
+                value: db, child: AddRoomContents());
+          }));
         },
         child: Icon(Icons.add));
   }
