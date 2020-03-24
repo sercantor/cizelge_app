@@ -110,28 +110,14 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                   ),
                 ),
                 Center(
-                  child: FutureBuilder(
-                    future: db.getRoomKey(),
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      return snapshot.hasData
-                          ? Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: SelectableText(
-                                'Oda Anahtarın: ${snapshot.data}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                          )
-                          : Text('Anahtar Bulunamadi');
-                    },
-                  ),
+                  child: db.roomRef != null ? Text(db.roomRef) : Text('Oda Anahtari Yok')
                 ),
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: RaisedButton(
                       child: Text('Odamdaki Kisileri Goster'),
-                      onPressed: () async {
-                        String roomID = await db.getRoomKey();
+                      onPressed: () {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -149,7 +135,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                                           //TODO: move this widget to somewhere else
                                           stream: Firestore.instance
                                               .collection('rooms')
-                                              .document(roomID)
+                                              .document(db.roomRef)
                                               .collection('users')
                                               .snapshots(),
                                           builder: (context, snapshot) {
@@ -210,8 +196,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                 Center(
                   child: RaisedButton(
                     child: Text('Odaya gir'),
-                    onPressed: isButtonDisabledAddUser
-                        ? () {
+                    onPressed: db.roomRef == null ? () {
                             db.addUserToRoom(newUserIdController.text,
                                 newRoomKeyController.text);
                           }

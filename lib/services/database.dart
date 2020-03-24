@@ -13,6 +13,7 @@ class DatabaseService with ChangeNotifier {
   }
 
   String get roomRef => _roomRef;
+  String get userRef => _userRef;
 
   // setters
   setReferences() async {
@@ -65,12 +66,6 @@ class DatabaseService with ChangeNotifier {
         .updateData({'dates': datesList});
   }
 
-  Future<String> getRoomKey() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String roomKey = prefs.getString('roomkey');
-    return roomKey;
-  }
-
   Future<String> getUserKey() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String userKey = prefs.getString('userkey');
@@ -97,35 +92,35 @@ class DatabaseService with ChangeNotifier {
         prefs.setString('userkey', _userRef);
         prefs.setString('roomkey', _roomRef);
         _roomRef = roomKey;
+        notifyListeners();
       } else {
         print('Odaya Girilemedi');
       }
     });
-    notifyListeners();
+    
   }
 
   exitRoom() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String userKey = await getUserKey();
-    String roomKey = await getRoomKey();
     _db
         .collection('rooms')
-        .document(roomKey)
+        .document(_roomRef)
         .collection('users')
         .getDocuments()
         .then((snapshot) {
       if (snapshot.documents.length == 1) {
         //this is potentially bad for scaling, though I assume rooms are not going to be above 15-20 users
-        _db.collection('rooms').document(roomKey).delete();
+        _db.collection('rooms').document(_roomRef).delete();
       } else {
         _db
             .collection('rooms')
-            .document(roomKey)
+            .document(_roomRef)
             .collection('users')
-            .document(userKey)
+            .document(_userRef)
             .delete();
       }
     });
+    _roomRef = null;
     prefs.remove('userkey');
     prefs.remove('roomkey');
     notifyListeners();

@@ -17,7 +17,6 @@ class Calendar extends StatelessWidget {
         calendarProvider.setDate(date);
       },
       onDayLongPressed: (DateTime date) async{
-        String roomID = await db.getRoomKey();
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -34,7 +33,7 @@ class Calendar extends StatelessWidget {
                       StreamBuilder( //TODO: move this widget to somewhere else
                           stream: Firestore.instance
                               .collection('rooms')
-                              .document(roomID)
+                              .document(db.roomRef)
                               .collection('users')
                               .where('dates',
                                   arrayContains: date.millisecondsSinceEpoch)
