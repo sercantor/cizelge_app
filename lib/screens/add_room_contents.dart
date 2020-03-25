@@ -109,8 +109,15 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                     },
                   ),
                 ),
-                Center(
-                  child: db.roomRef != null ? Text(db.roomRef) : Text('Oda Anahtari Yok')
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                      child: db.roomRef != null
+                          ? SelectableText(
+                              'Oda Anahtarin: ${db.roomRef}',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )
+                          : Text('Oda Anahtari Yok', style: TextStyle(fontWeight: FontWeight.bold),)),
                 ),
                 Center(
                   child: Padding(
@@ -148,7 +155,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                                               child: ListView.builder(
                                                   itemCount: snapshot
                                                       .data.documents.length,
-                                                  itemBuilder: (context, index) {
+                                                  itemBuilder:
+                                                      (context, index) {
                                                     return _buildUserList(
                                                         context,
                                                         snapshot.data
@@ -196,7 +204,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                 Center(
                   child: RaisedButton(
                     child: Text('Odaya gir'),
-                    onPressed: db.roomRef == null ? () {
+                    onPressed: isButtonDisabledAddUser
+                        ? () {
                             db.addUserToRoom(newUserIdController.text,
                                 newRoomKeyController.text);
                           }

@@ -58,12 +58,17 @@ class DatabaseService with ChangeNotifier {
     String roomKey = prefs.getString('roomkey');
     String userKey = prefs.getString('userkey');
 
-    Firestore.instance
+    try{
+      Firestore.instance
         .collection('rooms')
         .document('$roomKey')
         .collection('users')
         .document('$userKey')
         .updateData({'dates': datesList});
+    } catch(e) {
+      print('error');
+    }
+    
   }
 
   Future<String> getUserKey() async {
@@ -97,30 +102,31 @@ class DatabaseService with ChangeNotifier {
         print('Odaya Girilemedi');
       }
     });
-    
   }
 
   exitRoom() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _db
-        .collection('rooms')
-        .document(_roomRef)
-        .collection('users')
-        .getDocuments()
-        .then((snapshot) {
+    print(_roomRef);
+    print(_userRef);
+
+    var query = _db.collection('rooms/$_roomRef/users').getDocuments();
+
+    query.then((snapshot) {
       if (snapshot.documents.length == 1) {
-        //this is potentially bad for scaling, though I assume rooms are not going to be above 15-20 users
-        _db.collection('rooms').document(_roomRef).delete();
-      } else {
-        _db
-            .collection('rooms')
-            .document(_roomRef)
-            .collection('users')
-            .document(_userRef)
-            .delete();
+        _db.document('rooms/$_roomRef/users/$_userRef').delete();
+        _db.document('rooms/$_roomRef').delete();
+        _roomRef = null;
+        _userRef= null;
+        notifyListeners();
+      }
+      else{
+        _db.document('rooms/$_roomRef/users/$_userRef').delete();
+        _roomRef = null;
+        _userRef= null;
+        notifyListeners();
       }
     });
-    _roomRef = null;
+
     prefs.remove('userkey');
     prefs.remove('roomkey');
     notifyListeners();

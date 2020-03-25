@@ -12,9 +12,9 @@ class SendDataButton extends StatelessWidget {
     return Container(
       child: RaisedButton(
         child: Text('Seçtiğim Günleri İnternete Gönder'),
-        onPressed: () async {
+        onPressed: db.roomRef != null ? () {
           db.updateUserData(calendarProvider.datesList);
-        },
+        } : null,
       ),
     );
   }
