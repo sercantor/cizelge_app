@@ -10,13 +10,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Cizelge App',
-        home: ChangeNotifierProvider<DatabaseService>(
-          create: (context) => DatabaseService(),
-          child: ChangeNotifierProvider<CalendarProvider>(
-            create: (context) => CalendarProvider(),
-            child: HomePage(),
-          ),
-        ));
+      title: 'Cizelge App',
+      home: ChangeNotifierProvider<DatabaseService>(
+        create: (context) => DatabaseService(),
+        child: ChangeNotifierProvider<CalendarProvider>(
+          create: (context) => CalendarProvider(),
+          child: HomePage(),
+        ),
+      ),
+    );
   }
 }

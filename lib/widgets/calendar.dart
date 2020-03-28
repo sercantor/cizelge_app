@@ -30,14 +30,8 @@ class Calendar extends StatelessWidget {
                   padding: const EdgeInsets.all(12.0),
                   child: Column(
                     children: <Widget>[
-                      StreamBuilder( //TODO: move this widget to somewhere else
-                          stream: Firestore.instance
-                              .collection('rooms')
-                              .document(db.roomRef)
-                              .collection('users')
-                              .where('dates',
-                                  arrayContains: date.millisecondsSinceEpoch)
-                              .snapshots(),
+                      StreamBuilder( 
+                          stream: db.queryDatesEqual(date.millisecondsSinceEpoch),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
                               return CircularProgressIndicator();

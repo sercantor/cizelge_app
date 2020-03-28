@@ -117,7 +117,10 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                               'Oda Anahtarin: ${db.roomRef}',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             )
-                          : Text('Oda Anahtari Yok', style: TextStyle(fontWeight: FontWeight.bold),)),
+                          : Text(
+                              'Oda Anahtari Yok',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )),
                 ),
                 Center(
                   child: Padding(
@@ -138,13 +141,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                                   padding: const EdgeInsets.all(12.0),
                                   child: Column(
                                     children: <Widget>[
-                                      StreamBuilder(
-                                          //TODO: move this widget to somewhere else
-                                          stream: Firestore.instance
-                                              .collection('rooms')
-                                              .document(db.roomRef)
-                                              .collection('users')
-                                              .snapshots(),
+                                      StreamBuilder<QuerySnapshot>(
+                                          stream: db.queryDisplayId(),
                                           builder: (context, snapshot) {
                                             if (!snapshot.hasData) {
                                               return CircularProgressIndicator();

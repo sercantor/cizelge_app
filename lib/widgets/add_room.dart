@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:cizelge_app/services/database.dart';
 import 'package:provider/provider.dart';
 
-//TODO: convert this to stateful widget so I can display the RoomID and such when the user clicks
 class AddRoomButton extends StatefulWidget {
   @override
   _AddRoomButtonState createState() => _AddRoomButtonState();

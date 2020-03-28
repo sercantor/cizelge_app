@@ -10,6 +10,7 @@ class DatabaseService with ChangeNotifier {
 
   DatabaseService() {
     _db = Firestore.instance;
+    loadReferencesFromLocal();
   }
 
   String get roomRef => _roomRef;
@@ -24,7 +25,14 @@ class DatabaseService with ChangeNotifier {
         .collection('users')
         .document()
         .documentID;
+    notifyListeners();
+  }
 
+  loadReferencesFromLocal() async{
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String roomKeyFromLocal = prefs.getString('roomkey');
+
+    _roomRef = roomKeyFromLocal;
     notifyListeners();
   }
 
@@ -58,17 +66,12 @@ class DatabaseService with ChangeNotifier {
     String roomKey = prefs.getString('roomkey');
     String userKey = prefs.getString('userkey');
 
-    try{
-      Firestore.instance
+    Firestore.instance
         .collection('rooms')
         .document('$roomKey')
         .collection('users')
         .document('$userKey')
         .updateData({'dates': datesList});
-    } catch(e) {
-      print('error');
-    }
-    
   }
 
   Future<String> getUserKey() async {
@@ -79,6 +82,7 @@ class DatabaseService with ChangeNotifier {
 
   addUserToRoom(String displayID, String roomKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     _userRef = Firestore.instance
         .collection('rooms')
         .document(roomKey)
@@ -99,16 +103,13 @@ class DatabaseService with ChangeNotifier {
         _roomRef = roomKey;
         notifyListeners();
       } else {
-        print('Odaya Girilemedi');
+        print('odaya girilemedi');
       }
     });
   }
 
   exitRoom() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(_roomRef);
-    print(_userRef);
-
     var query = _db.collection('rooms/$_roomRef/users').getDocuments();
 
     query.then((snapshot) {
@@ -116,13 +117,12 @@ class DatabaseService with ChangeNotifier {
         _db.document('rooms/$_roomRef/users/$_userRef').delete();
         _db.document('rooms/$_roomRef').delete();
         _roomRef = null;
-        _userRef= null;
+        _userRef = null;
         notifyListeners();
-      }
-      else{
+      } else {
         _db.document('rooms/$_roomRef/users/$_userRef').delete();
         _roomRef = null;
-        _userRef= null;
+        _userRef = null;
         notifyListeners();
       }
     });
@@ -130,5 +130,22 @@ class DatabaseService with ChangeNotifier {
     prefs.remove('userkey');
     prefs.remove('roomkey');
     notifyListeners();
+  }
+
+  Stream<QuerySnapshot> queryDatesEqual(int date) {
+    return Firestore.instance
+        .collection('rooms')
+        .document(_roomRef)
+        .collection('users')
+        .where('dates', arrayContains: date)
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot> queryDisplayId() {
+    return Firestore.instance
+        .collection('rooms')
+        .document(_roomRef)
+        .collection('users')
+        .snapshots();
   }
 }
