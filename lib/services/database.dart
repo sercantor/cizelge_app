@@ -17,18 +17,13 @@ class DatabaseService with ChangeNotifier {
   String get userRef => _userRef;
 
   // setters
-  setReferences() async {
+  setReferences(String uid) async {
     _roomRef = _db.collection('rooms').document().documentID;
-    _userRef = _db
-        .collection('rooms')
-        .document('$_roomRef')
-        .collection('users')
-        .document()
-        .documentID;
+    _userRef = uid;
     notifyListeners();
   }
 
-  loadReferencesFromLocal() async{
+  loadReferencesFromLocal() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String roomKeyFromLocal = prefs.getString('roomkey');
 
@@ -80,47 +75,43 @@ class DatabaseService with ChangeNotifier {
     return userKey;
   }
 
-  addUserToRoom(String displayID, String roomKey) async {
+  Future<bool> addUserToRoom(String displayID, String roomKey, String uid) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    _userRef = Firestore.instance
-        .collection('rooms')
-        .document(roomKey)
-        .collection('users')
-        .document()
-        .documentID;
-
     var query = Firestore.instance.collection('rooms').document(roomKey);
+    DocumentSnapshot roomDocument = await query.get();
+    bool didEnterRoom = false;
 
-    query.get().then((doc) {
-      if (doc.exists) {
+    if(roomDocument.exists){
+        _roomRef = roomKey;
+        didEnterRoom = true;
+        notifyListeners();
         query
             .collection('users')
-            .document(_userRef)
+            .document(uid)
             .setData({'displayid': displayID});
-        prefs.setString('userkey', _userRef);
-        prefs.setString('roomkey', _roomRef);
-        _roomRef = roomKey;
+        prefs.setString('userkey', uid);
+        prefs.setString('roomkey', roomKey);
+    }else{
+        didEnterRoom = false;
         notifyListeners();
-      } else {
         print('odaya girilemedi');
-      }
-    });
+    }
+    return didEnterRoom;
   }
 
-  exitRoom() async {
+  void exitRoom(String uid) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var query = _db.collection('rooms/$_roomRef/users').getDocuments();
 
     query.then((snapshot) {
       if (snapshot.documents.length == 1) {
-        _db.document('rooms/$_roomRef/users/$_userRef').delete();
+        _db.document('rooms/$_roomRef/users/$uid').delete();
         _db.document('rooms/$_roomRef').delete();
         _roomRef = null;
         _userRef = null;
         notifyListeners();
       } else {
-        _db.document('rooms/$_roomRef/users/$_userRef').delete();
+        _db.document('rooms/$_roomRef/users/$uid').delete();
         _roomRef = null;
         _userRef = null;
         notifyListeners();
@@ -129,7 +120,7 @@ class DatabaseService with ChangeNotifier {
 
     prefs.remove('userkey');
     prefs.remove('roomkey');
-    notifyListeners();
+    notifyListeners(); //TODO: no need for this
   }
 
   Stream<QuerySnapshot> queryDatesEqual(int date) {

@@ -1,3 +1,5 @@
+import 'package:cizelge_app/models/user.dart';
+import 'package:cizelge_app/services/auth.dart';
 import 'package:cizelge_app/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +41,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
 
   @override
   Widget build(BuildContext context) {
-    var db = Provider.of<DatabaseService>(context);
+    final db = Provider.of<DatabaseService>(context);
+    final user = Provider.of<User>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -87,11 +90,10 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                     onPressed: isButtonDisabled
                         ? () {
                             setState(() {
-                              isButtonDisabled =
-                                  false; //TODO: this is really really hacky, think about this
                               isButtonDisabledAddUser = false;
+                              isButtonDisabled = false;
                             });
-                            db.setReferences();
+                            db.setReferences(user.uid);
                             db.setRoomData(roomIdController.text);
                             db.setUserData(userIdController.text);
                             db.saveRoomDataLocal(
@@ -105,7 +107,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                   child: RaisedButton(
                     child: Text('Odadan Cik'),
                     onPressed: () {
-                      db.exitRoom();
+                      db.exitRoom(user.uid);
                     },
                   ),
                 ),
@@ -203,9 +205,17 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                   child: RaisedButton(
                     child: Text('Odaya gir'),
                     onPressed: isButtonDisabledAddUser
-                        ? () {
-                            db.addUserToRoom(newUserIdController.text,
-                                newRoomKeyController.text);
+                        ? () async {
+                            bool didEnterRoom = await db.addUserToRoom(
+                                newUserIdController.text,
+                                newRoomKeyController.text,
+                                user.uid);
+                            if (didEnterRoom) {
+                              setState(() {
+                                isButtonDisabledAddUser = false;
+                                isButtonDisabled = false;
+                              });
+                            }
                           }
                         : null,
                   ),
@@ -246,9 +256,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
   _checkIfEmptyAddUser() async {
     final prefs = await SharedPreferences.getInstance();
     String roomKey;
-    setState(() {
-      roomKey = prefs.getString('roomkey');
-    });
+    roomKey = prefs.getString('roomkey');
 
     if (newRoomKeyController.text.isEmpty ||
         newUserIdController.text.isEmpty ||
