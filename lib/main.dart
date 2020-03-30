@@ -1,19 +1,20 @@
+import 'package:cizelge_app/models/user.dart';
+import 'package:cizelge_app/screens/wrapper.dart';
+import 'package:cizelge_app/services/auth.dart';
+import 'package:cizelge_app/services/database.dart';
 import 'package:flutter/material.dart';
-import './widgets/homepage.dart';
+import 'package:provider/provider.dart';
+import 'package:cizelge_app/providers/calendar_provider.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        appBarTheme: AppBarTheme(color: Colors.redAccent),
-        primarySwatch: Colors.red,
-      ),
-      home: HomePage(),
-    );
+    return MultiProvider(providers: [
+      StreamProvider<User>.value(value: AuthService().user),
+      ChangeNotifierProvider<DatabaseService>(create: (context) => DatabaseService()),
+      ChangeNotifierProvider<CalendarProvider>(create: (context) => CalendarProvider()),
+    ], child: MaterialApp(home: Wrapper()));
   }
 }
