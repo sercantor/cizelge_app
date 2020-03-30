@@ -1,6 +1,6 @@
 # Cizelge App
 
-This is a simple scheduling application I made for my brother. It uses Calendar Carousel and Flutter Notifications plugin. The application saves the dates that the user has chosen and sends a notification according to the date. The dates are stored with the help of shared preferences plugin.
+This is a simple scheduling application I made for my brother. It uses Calendar Carousel plugin and Firebase for backend. The application saves the dates that the user has chosen and sends a notification according to the date. The dates are stored with the help of shared preferences plugin.
 
 
 <p float = "left">
