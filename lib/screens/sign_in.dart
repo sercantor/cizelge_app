@@ -13,16 +13,15 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0.0,
-        title: Text('Giriş Yap'),
-      ),
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
         child: Form(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Center(child: 
+              Image(image: AssetImage('./lib/assets/logo.png'),)),
+              SizedBox(height: 20,),
               Center(
                 child: OutlineButton(
                   splashColor: Colors.grey,

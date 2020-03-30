@@ -16,7 +16,7 @@ class Calendar extends StatelessWidget {
         calendarProvider.setDateCursor(date);
         calendarProvider.setDate(date);
       },
-      onDayLongPressed: (DateTime date) async{
+      onDayLongPressed: (DateTime date) async {
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -30,8 +30,16 @@ class Calendar extends StatelessWidget {
                   padding: const EdgeInsets.all(12.0),
                   child: Column(
                     children: <Widget>[
-                      StreamBuilder( 
-                          stream: db.queryDatesEqual(date.millisecondsSinceEpoch),
+                      Center(
+                        child: Text(
+                          'Ayın ${date.day}. Gününde Nöbet Yapanlar',
+                          style: TextStyle(
+                              fontSize: 14.0, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      StreamBuilder(
+                          stream:
+                              db.queryDatesEqual(date.millisecondsSinceEpoch),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {
                               return CircularProgressIndicator();
@@ -67,7 +75,8 @@ class Calendar extends StatelessWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, DocumentSnapshot document) { //TODO: move this widget to somewhere else
+  Widget _buildList(BuildContext context, DocumentSnapshot document) {
+    //TODO: move this widget to somewhere else
     return ListTile(
       title: Text(document['displayid']),
     );

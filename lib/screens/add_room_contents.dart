@@ -1,5 +1,4 @@
 import 'package:cizelge_app/models/user.dart';
-import 'package:cizelge_app/services/auth.dart';
 import 'package:cizelge_app/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -143,6 +142,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                                   padding: const EdgeInsets.all(12.0),
                                   child: Column(
                                     children: <Widget>[
+                                      Center(child: Text(db.roomName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.0),)),
                                       StreamBuilder<QuerySnapshot>(
                                           stream: db.queryDisplayId(),
                                           builder: (context, snapshot) {
@@ -151,7 +151,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                                             }
                                             return Container(
                                               height: 400,
-                                              width: 100,
+                                              width: 200,
                                               child: ListView.builder(
                                                   itemCount: snapshot
                                                       .data.documents.length,

@@ -7,6 +7,7 @@ class DatabaseService with ChangeNotifier {
   Firestore _db;
   String _roomRef;
   String _userRef;
+  String _roomName;
 
   DatabaseService() {
     _db = Firestore.instance;
@@ -15,6 +16,7 @@ class DatabaseService with ChangeNotifier {
 
   String get roomRef => _roomRef;
   String get userRef => _userRef;
+  String get roomName => _roomName;
 
   // setters
   setReferences(String uid) async {
@@ -26,15 +28,19 @@ class DatabaseService with ChangeNotifier {
   loadReferencesFromLocal() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String roomKeyFromLocal = prefs.getString('roomkey');
+    String roomName = prefs.getString('roomid');
 
+    _roomName = roomName;
     _roomRef = roomKeyFromLocal;
     notifyListeners();
   }
 
   setRoomData(String roomID) {
     _db.collection('rooms').document('$_roomRef').setData({'roomid': roomID});
+    _roomName = roomID;
+    notifyListeners();
   }
-
+  
   setUserData(String displayID) {
     _db
         .collection('rooms')
@@ -109,17 +115,21 @@ class DatabaseService with ChangeNotifier {
         _db.document('rooms/$_roomRef').delete();
         _roomRef = null;
         _userRef = null;
+        _roomName = null;
         notifyListeners();
       } else {
         _db.document('rooms/$_roomRef/users/$uid').delete();
         _roomRef = null;
         _userRef = null;
+        _roomName = null;
         notifyListeners();
       }
     });
 
     prefs.remove('userkey');
     prefs.remove('roomkey');
+    prefs.remove('roomid');
+    prefs.remove('userid');
     notifyListeners(); //TODO: no need for this
   }
 
