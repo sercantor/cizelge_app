@@ -5,36 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+List<GlobalKey<FormState>> _formKeys = [
+  GlobalKey<FormState>(),
+  GlobalKey<FormState>()
+];
+
 class AddRoomContents extends StatefulWidget {
   @override
   _AddRoomContentsState createState() => _AddRoomContentsState();
 }
 
 class _AddRoomContentsState extends State<AddRoomContents> {
-  final roomIdController = TextEditingController();
-  final userIdController = TextEditingController();
-  final newRoomKeyController = TextEditingController(); //TODO: change naming
-  final newUserIdController = TextEditingController(); //TODO: change naming
-  bool isButtonDisabled;
-  bool isButtonDisabledAddUser;
-
-  @override
-  void initState() {
-    super.initState();
-    isButtonDisabled = false;
-    isButtonDisabledAddUser = false;
-    roomIdController.addListener(_checkIfEmpty);
-    userIdController.addListener(_checkIfEmpty);
-    newUserIdController.addListener(_checkIfEmptyAddUser);
-    newRoomKeyController.addListener(_checkIfEmptyAddUser);
-  }
+  final TextEditingController createRoomName = TextEditingController();
+  final TextEditingController createUserName = TextEditingController();
+  final TextEditingController addRoomName = TextEditingController();
+  final TextEditingController addUserName = TextEditingController();
 
   @override
   void dispose() {
-    roomIdController.dispose();
-    userIdController.dispose();
-    newUserIdController.addListener(_checkIfEmptyAddUser);
-    newRoomKeyController.addListener(_checkIfEmptyAddUser);
+    createRoomName.dispose();
+    createUserName.dispose();
+    addRoomName.dispose();
+    addUserName.dispose();
     super.dispose();
   }
 
@@ -42,187 +34,187 @@ class _AddRoomContentsState extends State<AddRoomContents> {
   Widget build(BuildContext context) {
     final db = Provider.of<DatabaseService>(context);
     final user = Provider.of<User>(context);
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Oda Kur/Odaya Gir'),
-      ),
-      body: Container(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(12.0, 20.0, 12.0, 12.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(12.0),
-                  child: TextFormField(
-                    autofocus: false,
-                    maxLengthEnforced: true,
-                    maxLength: 50,
-                    controller: roomIdController,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.home),
-                      labelText: 'Oda İsmi',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 12.0),
-                  child: TextFormField(
-                    autofocus: false,
-                    maxLengthEnforced: true,
-                    maxLength: 20,
-                    controller: userIdController,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.person),
-                      labelText: 'Kullanıcı İsmin',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: RaisedButton(
-                    child: Text('Onayla'),
-                    onPressed: isButtonDisabled
-                        ? () {
-                            setState(() {
-                              isButtonDisabledAddUser = false;
-                              isButtonDisabled = false;
-                            });
-                            db.setReferences(user.uid);
-                            db.setRoomData(roomIdController.text);
-                            db.setUserData(userIdController.text);
-                            db.saveRoomDataLocal(
-                                roomIdController.text, userIdController.text);
-                            db.saveReferencesToLocal();
+      appBar: AppBar(),
+      body: Builder(
+        builder: (context) => Column(
+          children: <Widget>[
+            Form(
+              key: _formKeys[0],
+              child: Container(
+                child: Column(
+                  children: <Widget>[
+                    Visibility(
+                      child: TextFormField(
+                        controller: createRoomName,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Oda ismi boş olamaz.';
                           }
-                        : null,
-                  ),
-                ),
-                Center(
-                  child: RaisedButton(
-                    child: Text('Odadan Cik'),
-                    onPressed: () {
-                      db.exitRoom(user.uid);
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                      child: db.roomRef != null
-                          ? SelectableText(
-                              'Oda Anahtarin: ${db.roomRef}',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            )
-                          : Text(
-                              'Oda Anahtari Yok',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            )),
-                ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: RaisedButton(
-                      child: Text('Odamdaki Kisileri Goster'),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              child: Container(
-                                height: 450,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    children: <Widget>[
-                                      Center(child: Text(db.roomName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.0),)),
-                                      StreamBuilder<QuerySnapshot>(
-                                          stream: db.queryDisplayId(),
-                                          builder: (context, snapshot) {
-                                            if (!snapshot.hasData) {
-                                              return CircularProgressIndicator();
-                                            }
-                                            return Container(
-                                              height: 400,
-                                              width: 200,
-                                              child: ListView.builder(
-                                                  itemCount: snapshot
-                                                      .data.documents.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return _buildUserList(
-                                                        context,
-                                                        snapshot.data
-                                                            .documents[index]);
-                                                  }),
-                                            );
-                                          })
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
+                          return null;
+                        },
+                      ),
+                      visible: (db.roomRef == null),
                     ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 12.0),
-                  child: TextFormField(
-                    autofocus: false,
-                    maxLengthEnforced: true,
-                    controller: newUserIdController,
-                    maxLength: 20,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.person),
-                        labelText: 'Kullanıcı İsmin',
-                        border: OutlineInputBorder()),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 12.0),
-                  child: TextFormField(
-                    autofocus: false,
-                    maxLengthEnforced: true,
-                    controller: newRoomKeyController,
-                    maxLength: 20,
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.home),
-                        labelText: 'Oda Anahtari',
-                        border: OutlineInputBorder()),
-                  ),
-                ),
-                Center(
-                  child: RaisedButton(
-                    child: Text('Odaya gir'),
-                    onPressed: isButtonDisabledAddUser
-                        ? () async {
-                            bool didEnterRoom = await db.addUserToRoom(
-                                newUserIdController.text,
-                                newRoomKeyController.text,
-                                user.uid);
-                            if (didEnterRoom) {
-                              setState(() {
-                                isButtonDisabledAddUser = false;
-                                isButtonDisabled = false;
-                              });
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Visibility(
+                      child: TextFormField(
+                        controller: createUserName,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Kullanıcı ismi boş olamaz.';
+                          }
+                          return null;
+                        },
+                      ),
+                      visible: (db.roomRef == null),
+                    ),
+                    Center(
+                      child: Visibility(
+                        child: RaisedButton(
+                          onPressed: () {
+                            if (_formKeys[0].currentState.validate() &&
+                                db.roomRef == null) {
+                              db.setReferences(user.uid);
+                              db.saveReferencesToLocal();
+                              db.setRoomData(createRoomName.text);
+                              db.saveRoomDataLocal(
+                                  createRoomName.text, createUserName.text);
+                              db.setUserData(createUserName.text);
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: Text('Oda Başarıyla kuruldu')));
+                            } else {
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                content: Text('Oda kuluramadı.'),
+                              ));
                             }
-                          }
-                        : null,
-                  ),
+                          },
+                          child: Text('Oda Kur'),
+                        ),
+                        visible: (db.roomRef == null),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Visibility(
+                      child: RaisedButton(
+                        onPressed: () {
+                          db.exitRoom(user.uid);
+                          db.deleteFromLocal();
+                        },
+                        child: Text('Odadan Çık'),
+                      ),
+                      visible: (db.roomRef != null),
+                    ),
+                    Divider(
+                      indent: 15.0,
+                      endIndent: 15.0,
+                      thickness: 2.5,
+                      height: 30.0,
+                      color: Colors.red,
+                    ),
+                    SelectableText(
+                      (db.roomRef != null)
+                          ? 'Oda anahtarın: ${db.roomRef}'
+                          : 'Oda anahatarı bulunamadı.',
+                      style: TextStyle(fontSize: 20.0),
+                    ),
+                    Divider(
+                      indent: 15.0,
+                      endIndent: 15.0,
+                      thickness: 2.5,
+                      height: 30.0,
+                      color: Colors.red,
+                    ),
+                    Visibility(
+                      child: Center(
+                        child: Text(
+                          'Odadandaki Kişiler',
+                          style: TextStyle(
+                              fontSize: 25.0, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      visible: db.roomRef != null,
+                    ),
+                    Visibility(
+                      child: StreamBuilder<QuerySnapshot>(
+                          stream: db.queryDisplayId(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return CircularProgressIndicator();
+                            }
+                            return Center(
+                              child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data.documents.length,
+                                  itemBuilder: (context, index) {
+                                    return _buildUserList(context,
+                                        snapshot.data.documents[index]);
+                                  }),
+                            );
+                          }),
+                      visible: db.roomRef != null,
+                    )
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            Form(
+              key: _formKeys[1],
+              child: Container(
+                child: Column(
+                  children: <Widget>[
+                    Visibility(
+                      child: TextFormField(
+                        controller: addUserName,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Kullanıcı ismi boş olamaz.';
+                          }
+                          return null;
+                        },
+                      ),
+                      visible: (db.roomRef == null),
+                    ),
+                    Visibility(
+                      child: TextFormField(
+                        controller: addRoomName,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Senle paylaşılan oda anahtarını gir.';
+                          }
+                          return null;
+                        },
+                      ),
+                      visible: (db.roomRef == null),
+                    ),
+                    Visibility(
+                      child: RaisedButton(
+                        onPressed: () async {
+                          bool didEnter = await db.addUserToRoom(
+                              addUserName.text, addRoomName.text, user.uid);
+                          if (_formKeys[1].currentState.validate() &&
+                              didEnter) {
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                                content: Text('Odaya başarıyla girildi.')));
+                          } else {
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                                content: Text(
+                                    'Odaya girilemedi. Anahtarı yanlış girmiş olabilir misin?')));
+                          }
+                        },
+                        child: Text('Odaya Gir'),
+                      ),
+                      visible: db.roomRef == null,
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -232,42 +224,5 @@ class _AddRoomContentsState extends State<AddRoomContents> {
     return ListTile(
       title: Text(document['displayid']),
     );
-  }
-
-  _checkIfEmpty() async {
-    final prefs = await SharedPreferences.getInstance();
-    String roomKey;
-    setState(() {
-      roomKey = prefs.getString('roomkey');
-    });
-    if (roomIdController.text.isEmpty ||
-        userIdController.text.isEmpty ||
-        (roomKey != null)) {
-      setState(() {
-        isButtonDisabled = false;
-      });
-    } else {
-      setState(() {
-        isButtonDisabled = true;
-      });
-    }
-  }
-
-  _checkIfEmptyAddUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    String roomKey;
-    roomKey = prefs.getString('roomkey');
-
-    if (newRoomKeyController.text.isEmpty ||
-        newUserIdController.text.isEmpty ||
-        (roomKey != null)) {
-      setState(() {
-        isButtonDisabledAddUser = false;
-      });
-    } else {
-      setState(() {
-        isButtonDisabledAddUser = true;
-      });
-    }
   }
 }

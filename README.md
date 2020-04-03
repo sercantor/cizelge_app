@@ -1,16 +1,25 @@
-# cizelge_app
+# Cizelge App
 
-A new Flutter project.
+This is a simple scheduling application I made for my brother. It uses Calendar Carousel and Flutter Notifications plugin. The application saves the dates that the user has chosen and sends a notification according to the date. The dates are stored with the help of shared preferences plugin.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+<img src="https://user-images.githubusercontent.com/32751228/77929729-ac60ed80-72b2-11ea-8102-407fdb5837b9.png" width="250" height="440"/>
+<img src="https://user-images.githubusercontent.com/32751228/77929799-c39fdb00-72b2-11ea-9461-bbe2ad568900.png" width="250" height="440"/>
+<img src="https://user-images.githubusercontent.com/32751228/77929989-f6e26a00-72b2-11ea-91a4-03ea6e63c59e.png" width="250" height="440"/>
+<img src="https://user-images.githubusercontent.com/32751228/77930443-9273da80-72b3-11ea-9c91-6ec1b289468d.png" width="250" height="440"/>
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## What does it do?
+My brother complained that there is no simple application which you can just select dates on a calendar and not deal with configuring stuff, he works in a hospital so with this application he can just mark the dates and it will notify him about when his next night shift is.
+
+
+### Features
+- Sign-in with Google gmail 
+- Create a room with a unique key
+    - View users in room
+    - Join an existing room
+- View each others' schedule by long pressing the date
+- [ ] Add more sign-in methods
+- [ ] Add more tabs
+- [ ] Add shift hours
