@@ -1,3 +1,4 @@
+
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,6 @@ class DatabaseService with ChangeNotifier {
   String _roomRef;
   String _userRef;
   String _roomName;
-
   DatabaseService() {
     _db = Firestore.instance;
     loadReferencesFromLocal();
@@ -48,6 +48,8 @@ class DatabaseService with ChangeNotifier {
     _roomName = roomID;
     notifyListeners();
   }
+
+  
   
   setUserData(String displayID) {
     _db

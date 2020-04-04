@@ -1,3 +1,4 @@
+import 'package:cizelge_app/models/connectivity_status.dart';
 import 'package:cizelge_app/models/user.dart';
 import 'package:cizelge_app/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,6 +35,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
   Widget build(BuildContext context) {
     final db = Provider.of<DatabaseService>(context);
     final user = Provider.of<User>(context);
+    final connectionStatus = Provider.of<ConnectivityStatus>(context);
+
     return Scaffold(
       appBar: AppBar(),
       body: Builder(
@@ -74,23 +77,30 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                     Center(
                       child: Visibility(
                         child: RaisedButton(
-                          onPressed: () {
-                            if (_formKeys[0].currentState.validate() &&
-                                db.roomRef == null) {
-                              db.setReferences(user.uid);
-                              db.saveReferencesToLocal();
-                              db.setRoomData(createRoomName.text);
-                              db.saveRoomDataLocal(
-                                  createRoomName.text, createUserName.text);
-                              db.setUserData(createUserName.text);
-                              Scaffold.of(context).showSnackBar(SnackBar(
-                                  content: Text('Oda Başarıyla kuruldu')));
-                            } else {
-                              Scaffold.of(context).showSnackBar(SnackBar(
-                                content: Text('Oda kuluramadı.'),
-                              ));
-                            }
-                          },
+                          //check internet connection before enabling the button
+                          //probably should move this logic elsewhere
+                          onPressed: (connectionStatus ==
+                                      ConnectivityStatus.Cellular ||
+                                  connectionStatus == ConnectivityStatus.Wifi)
+                              ? () {
+                                  if (_formKeys[0].currentState.validate() &&
+                                      db.roomRef == null) {
+                                    db.setReferences(user.uid);
+                                    db.saveReferencesToLocal();
+                                    db.setRoomData(createRoomName.text);
+                                    db.saveRoomDataLocal(createRoomName.text,
+                                        createUserName.text);
+                                    db.setUserData(createUserName.text);
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        content:
+                                            Text('Oda Başarıyla kuruldu')));
+                                  } else {
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                      content: Text('Oda kuluramadı.'),
+                                    ));
+                                  }
+                                }
+                              : null,
                           child: Text('Oda Kur'),
                         ),
                         visible: (db.roomRef == null),
@@ -101,10 +111,14 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                     ),
                     Visibility(
                       child: RaisedButton(
-                        onPressed: () {
-                          db.exitRoom(user.uid);
-                          db.deleteFromLocal();
-                        },
+                        onPressed:
+                            (connectionStatus == ConnectivityStatus.Cellular ||
+                                    connectionStatus == ConnectivityStatus.Wifi)
+                                ? () {
+                                    db.exitRoom(user.uid);
+                                    db.deleteFromLocal();
+                                  }
+                                : null,
                         child: Text('Odadan Çık'),
                       ),
                       visible: (db.roomRef != null),
@@ -193,19 +207,26 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                     ),
                     Visibility(
                       child: RaisedButton(
-                        onPressed: () async {
-                          bool didEnter = await db.addUserToRoom(
-                              addUserName.text, addRoomName.text, user.uid);
-                          if (_formKeys[1].currentState.validate() &&
-                              didEnter) {
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                                content: Text('Odaya başarıyla girildi.')));
-                          } else {
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                                content: Text(
-                                    'Odaya girilemedi. Anahtarı yanlış girmiş olabilir misin?')));
-                          }
-                        },
+                        onPressed: (connectionStatus ==
+                                    ConnectivityStatus.Cellular ||
+                                connectionStatus == ConnectivityStatus.Wifi)
+                            ? () async {
+                                bool didEnter = await db.addUserToRoom(
+                                    addUserName.text,
+                                    addRoomName.text,
+                                    user.uid);
+                                if (_formKeys[1].currentState.validate() &&
+                                    didEnter) {
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      content:
+                                          Text('Odaya başarıyla girildi.')));
+                                } else {
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                      content: Text(
+                                          'Odaya girilemedi. Anahtarı yanlış girmiş olabilir misin?')));
+                                }
+                              }
+                            : null,
                         child: Text('Odaya Gir'),
                       ),
                       visible: db.roomRef == null,
