@@ -1,4 +1,4 @@
-
+import 'package:cizelge_app/services/auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,7 @@ class DatabaseService with ChangeNotifier {
     loadReferencesFromLocal();
   }
 
+  //TODO: useRref is useless here
   String get roomRef => _roomRef;
   String get userRef => _userRef;
   String get roomName => _roomName;
@@ -35,7 +36,7 @@ class DatabaseService with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteFromLocal() async{
+  Future<void> deleteFromLocal() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('userkey');
     prefs.remove('roomkey');
@@ -49,15 +50,14 @@ class DatabaseService with ChangeNotifier {
     notifyListeners();
   }
 
-  
-  
-  setUserData(String displayID) {
+  setUserData(String displayID, String avatar) {
+    print(avatar);
     _db
         .collection('rooms')
         .document('$_roomRef')
         .collection('users')
         .document('$_userRef')
-        .setData({'displayid': displayID});
+        .setData({'displayid': displayID, 'avatar': avatar});
   }
 
   Future saveRoomDataLocal(String roomID, String displayID) async {
@@ -91,52 +91,62 @@ class DatabaseService with ChangeNotifier {
     return userKey;
   }
 
-  Future<bool> addUserToRoom(String displayID, String roomKey, String uid) async {
+  Future<bool> addUserToRoom(
+      String displayID, String roomKey, String uid, String avatar) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    DocumentSnapshot roomDocument = await _db.collection('rooms').document(roomKey).get();
+    DocumentSnapshot roomDocument =
+        await _db.collection('rooms').document(roomKey).get();
     bool didEnterRoom = false;
 
-    if(roomDocument.exists){
-        _roomRef = roomKey;
-        notifyListeners();
-        _db
-            .collection('rooms')
-            .document(roomKey)
-            .collection('users')
-            .document(uid)
-            .setData({'displayid': displayID});
-        prefs.setString('userkey', uid);
-        prefs.setString('roomkey', roomKey);
-        didEnterRoom = true;
-        return didEnterRoom;
-    }else{
-        print('odaya girilemedi');
-        didEnterRoom = false; 
-        return didEnterRoom;
+    if (roomDocument.exists) {
+      _roomRef = roomKey;
+      notifyListeners();
+      _db
+          .collection('rooms')
+          .document(roomKey)
+          .collection('users')
+          .document(uid)
+          .setData({'displayid': displayID, 'avatar': avatar});
+      prefs.setString('userkey', uid);
+      prefs.setString('roomkey', roomKey);
+      didEnterRoom = true;
+      return didEnterRoom;
+    } else {
+      print('odaya girilemedi');
+      didEnterRoom = false;
+      return didEnterRoom;
     }
   }
 
   Future<void> exitRoom(String uid) async {
     print(_roomRef);
     print(uid);
-    QuerySnapshot query = await _db.collection('rooms').document(_roomRef).collection('users').getDocuments();
+    QuerySnapshot query = await _db
+        .collection('rooms')
+        .document(_roomRef)
+        .collection('users')
+        .getDocuments();
 
-    if(query.documents.length == 1) {
-      _db.collection('rooms').document(_roomRef).collection('users').document(uid).delete();
+    if (query.documents.length == 1) {
+      _db
+          .collection('rooms')
+          .document(_roomRef)
+          .collection('users')
+          .document(uid)
+          .delete();
       _db.collection('rooms').document(_roomRef).delete();
-        _roomRef = null;
-        _userRef = null;
-        _roomName = null;
-        notifyListeners();
+      _roomRef = null;
+      _userRef = null;
+      _roomName = null;
+      notifyListeners();
     } else {
-        _db.document('rooms/$_roomRef/users/$uid').delete();
-        _roomRef = null;
-        _userRef = null;
-        _roomName = null;
-        notifyListeners();
+      _db.document('rooms/$_roomRef/users/$uid').delete();
+      _roomRef = null;
+      _userRef = null;
+      _roomName = null;
+      notifyListeners();
     }
   }
-
 
   Stream<QuerySnapshot> queryDatesEqual(int date) {
     return Firestore.instance
@@ -153,5 +163,12 @@ class DatabaseService with ChangeNotifier {
         .document(_roomRef)
         .collection('users')
         .snapshots();
+  }
+
+  Future<void> queryRoomName() async {
+    _db.collection('rooms').document(_roomRef).get().then((doc) {
+      _roomName = doc['roomid'].toString();
+      notifyListeners();
+    });
   }
 }
