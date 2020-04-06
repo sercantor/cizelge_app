@@ -273,7 +273,6 @@ class _AddRoomContentsState extends State<AddRoomContents> {
       ),
     );
   }
-
   Widget _buildUserList(
       BuildContext context, DocumentSnapshot document, String avatar) {
     return ListTile(
