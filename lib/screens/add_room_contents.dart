@@ -129,7 +129,9 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                                   db.deleteFromLocal();
                                 }
                               : null,
-                          child: Text('Odadan Çık'),
+                          child: Text(
+                            'Odadan Çık',
+                          ),
                         ),
                         visible: (db.roomRef != null),
                       ),
@@ -144,7 +146,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                         (db.roomRef != null)
                             ? 'Oda anahtarın: ${db.roomRef}'
                             : 'Oda anahatarı bulunamadı.',
-                        style: TextStyle(fontSize: 20.0),
+                        style: TextStyle(fontSize: 17.0),
                       ),
                       Divider(
                         indent: 15.0,
@@ -157,15 +159,16 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                         height: 20.0,
                       ),
                       Visibility(
-                        child: Center(
+                        child: Container(
                           child: Text(
                             'Oda: ${db.roomName}',
                             style: TextStyle(
-                                fontSize: 25.0, fontWeight: FontWeight.bold),
+                                fontSize: 18.0, fontWeight: FontWeight.bold),
                           ),
                         ),
                         visible: db.roomRef != null,
                       ),
+                      SizedBox(height: 20.0,),
                       Visibility(
                         child: StreamBuilder<QuerySnapshot>(
                             stream: db.queryDisplayId(),
@@ -180,8 +183,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                                     itemBuilder: (context, index) {
                                       return _buildUserList(
                                           context,
-                                          snapshot.data.documents[index],
-                                          user.avatar);
+                                          snapshot.data.documents[index]);
                                     }),
                               );
                             }),
@@ -273,17 +275,21 @@ class _AddRoomContentsState extends State<AddRoomContents> {
       ),
     );
   }
+
   Widget _buildUserList(
-      BuildContext context, DocumentSnapshot document, String avatar) {
+      BuildContext context, DocumentSnapshot document) {
     return ListTile(
       leading: CircleAvatar(
         radius: 20.0,
-        backgroundImage: document['avatar'] != null
-            ? NetworkImage(document['avatar'], scale: 3.0)
+        backgroundImage: document['avatar'].toString() != null
+            ? NetworkImage(document['avatar'].toString(), scale: 3.0)
             : ExactAssetImage('./lib/assets/x.png', scale: 10.0),
         backgroundColor: Colors.transparent,
       ),
-      title: Text(document['displayid'], style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),),
+      title: Text(
+        document['displayid'].toString(),
+        style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

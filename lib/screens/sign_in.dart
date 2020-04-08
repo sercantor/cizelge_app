@@ -46,7 +46,7 @@ class _SignInState extends State<SignIn> {
                           child: Text(
                             'Google ile Giriş Yap',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 16.0,
                               color: Colors.grey,
                             ),
                           ),

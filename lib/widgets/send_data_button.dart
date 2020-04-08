@@ -13,12 +13,12 @@ class SendDataButton extends StatelessWidget {
 
     return Container(
         child: RaisedButton(
-          child: Text('Seçtiğim Günleri İnternete Gönder'),
+          child: Text('Seçtiğim Günleri İnternete Gönder', style: TextStyle(fontFamily: 'Montserrat'),),
           onPressed: (db.roomRef != null && 
           //check internet connection
           (connectionStatus == ConnectivityStatus.Cellular || connectionStatus == ConnectivityStatus.Wifi))
               ? () {
-                  db.updateUserData(calendarProvider.datesList);
+                  db.updateUserData(calendarProvider.datesMap);
                 }
               : null,
         ),

@@ -2,15 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
+//TODO: authorized users can request dates from other rooms, although this is highly unlikely, try to fix
 
 class CalendarProvider with ChangeNotifier {
   DateTime _dateCursor;
   List<int> _datesList;
   EventList<Event> _markedDateMap;
+  Map<String, dynamic> _datesMap;
 
   CalendarProvider() {
     _dateCursor = DateTime.now();
     _datesList = List<int>();
+    _datesMap = Map<String, dynamic>();
     _markedDateMap = EventList<Event>(events: {});
     loadPreferences();
   }
@@ -19,10 +24,16 @@ class CalendarProvider with ChangeNotifier {
   DateTime get dateCursor => _dateCursor;
   List<int> get datesList => _datesList;
   EventList<Event> get markedDateMap => _markedDateMap;
+  Map<String, dynamic> get datesMap => _datesMap;
 
   //setters
   void setDateCursor(DateTime date) {
     _dateCursor = date;
+    notifyListeners();
+  }
+
+  void setDateMap(String date, List<String> startAndEndTime) {
+    _datesMap.putIfAbsent(date.toString(), () => startAndEndTime);
     notifyListeners();
   }
 
@@ -39,11 +50,13 @@ class CalendarProvider with ChangeNotifier {
   }
 
   loadPreferences() async {
+    //TODO: rewrite this, not that hard
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getStringList('date_nobet') == null) {
     } else {
       _datesList =
           prefs.getStringList('date_nobet').map(int.parse).toList() ?? [];
+      _datesMap = json.decode(prefs.getString('datesMap'));
     }
 
     //removes the dates that have been selected before, and now have passed
@@ -56,7 +69,17 @@ class CalendarProvider with ChangeNotifier {
       _markedDateMap.add(DateTime.fromMillisecondsSinceEpoch(_datesList[i]),
           new Event(date: DateTime.fromMillisecondsSinceEpoch(_datesList[i])));
     }
+
+    _datesList.forEach((date) {
+      if (!_datesMap.containsKey('${date.toString()}')) {
+        _datesMap.remove('${date.toString()}');
+      }
+    });
     notifyListeners();
+  }
+
+  void removeDateMap(String date) {
+    _datesMap.remove(date);
   }
 
   savePreferences() async {
@@ -67,6 +90,7 @@ class CalendarProvider with ChangeNotifier {
         _datesList.map<String>((int a) {
           return a.toString();
         }).toList());
+    prefs.setString('datesMap', json.encode(_datesMap));
     notifyListeners();
   }
 }

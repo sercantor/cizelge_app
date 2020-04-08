@@ -19,6 +19,6 @@ class MyApp extends StatelessWidget {
       StreamProvider<User>.value(value: AuthService().user),
       ChangeNotifierProvider<DatabaseService>(create: (context) => DatabaseService()),
       ChangeNotifierProvider<CalendarProvider>(create: (context) => CalendarProvider()),
-    ], child: MaterialApp(home: Wrapper()));
+    ], child: MaterialApp(home: Wrapper(), theme: ThemeData(fontFamily: 'Montserrat',), darkTheme: ThemeData.dark(),));
   }
 }

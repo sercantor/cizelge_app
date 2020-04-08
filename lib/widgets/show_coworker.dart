@@ -19,32 +19,39 @@ class ShowCoworker extends StatelessWidget {
         height: 450,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: <Widget>[
-              Center(
-                child: Text(
-                  'Ayın ${date.day}. Gününde Nöbet Yapanlar',
-                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Center(
+                  child: Text(
+                    'Ayın ${date.day}. Gününde Nöbet Yapanlar',
+                    style:
+                        TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              StreamBuilder(
-                  stream: db.queryDatesEqual(date.millisecondsSinceEpoch),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return CircularProgressIndicator();
-                    }
-                    return Container(
-                      height: 400,
-                      width: 100,
-                      child: ListView.builder(
-                          itemCount: snapshot.data.documents.length,
-                          itemBuilder: (context, index) {
-                            return _buildList(
-                                context, snapshot.data.documents[index]);
-                          }),
-                    );
-                  })
-            ],
+                SizedBox(
+                  height: 20.0,
+                ),
+                StreamBuilder(
+                    stream: db.queryDatesEqual(date.millisecondsSinceEpoch),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return CircularProgressIndicator();
+                      }
+                      return Container(
+                        height: 400,
+                        child: ListView.builder(
+                            itemCount: snapshot.data.documents.length,
+                            itemBuilder: (context, index) {
+                              return _buildList(
+                                context,
+                                snapshot.data.documents[index],
+                              );
+                            }),
+                      );
+                    })
+              ],
+            ),
           ),
         ),
       ),
@@ -53,7 +60,17 @@ class ShowCoworker extends StatelessWidget {
 
   Widget _buildList(BuildContext context, DocumentSnapshot document) {
     return ListTile(
-      title: Text(document['displayid'].toString()),
+      leading: CircleAvatar(
+        radius: 20.0,
+        backgroundImage: document['avatar'].toString() != null
+            ? NetworkImage(document['avatar'].toString(), scale: 3.0)
+            : ExactAssetImage('./lib/assets/x.png', scale: 10.0),
+        backgroundColor: Colors.transparent,
+      ),
+      title: Text(
+        document['displayid'].toString(),
+        style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

@@ -71,7 +71,7 @@ class DatabaseService with ChangeNotifier {
     prefs.setString('userkey', '$_userRef');
   }
 
-  updateUserData(List<int> datesList) async {
+  updateUserData(Map<String, dynamic> datesMap) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String roomKey = prefs.getString('roomkey');
     String userKey = prefs.getString('userkey');
@@ -81,7 +81,7 @@ class DatabaseService with ChangeNotifier {
         .document('$roomKey')
         .collection('users')
         .document('$userKey')
-        .updateData({'dates': datesList});
+        .updateData({'datesmap': datesMap});
   }
 
   Future<String> getUserKey() async {
