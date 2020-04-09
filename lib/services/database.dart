@@ -152,7 +152,7 @@ class DatabaseService with ChangeNotifier {
         .collection('rooms')
         .document(_roomRef)
         .collection('users')
-        .where('dates', arrayContains: date)
+        .where('datesmap.${date.toString()}', isGreaterThan: [])
         .snapshots();
   }
 

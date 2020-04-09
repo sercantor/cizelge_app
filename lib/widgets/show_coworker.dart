@@ -43,10 +43,8 @@ class ShowCoworker extends StatelessWidget {
                         child: ListView.builder(
                             itemCount: snapshot.data.documents.length,
                             itemBuilder: (context, index) {
-                              return _buildList(
-                                context,
-                                snapshot.data.documents[index],
-                              );
+                              return _buildList(context,
+                                  snapshot.data.documents[index], date);
                             }),
                       );
                     })
@@ -57,8 +55,24 @@ class ShowCoworker extends StatelessWidget {
       ),
     );
   }
+    //I feel like this is highly inefficient (for querying) and very complex to read
+    //I need to figure out if this is OK or not
+  Widget _buildList(
+      BuildContext context, DocumentSnapshot document, DateTime date) {
+    List<String> workStartingTime = List<String>();
+    List<String> workEndingTime = List<String>();
 
-  Widget _buildList(BuildContext context, DocumentSnapshot document) {
+    //need to check if datesmap is empty, or I get error, this is a bad workaround
+    for (int i = 0; i < 2; i++)
+      workStartingTime.add(document['datesmap']
+              ['${date.millisecondsSinceEpoch.toString()}'][i]
+          .toString());
+
+    for (int i = 2; i < 4; i++)
+      workEndingTime.add(document['datesmap']
+              ['${date.millisecondsSinceEpoch.toString()}'][i]
+          .toString());
+
     return ListTile(
       leading: CircleAvatar(
         radius: 20.0,
@@ -71,6 +85,8 @@ class ShowCoworker extends StatelessWidget {
         document['displayid'].toString(),
         style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
       ),
+      subtitle: Text(
+          'Başlangıç saati - ${workStartingTime[0]} : ${workStartingTime[1]} \nBitiş Saati - ${workEndingTime[0]} : ${workEndingTime[1]}'),
     );
   }
 }

@@ -50,6 +50,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                     children: <Widget>[
                       Visibility(
                         child: TextFormField(
+                          maxLength: 60,
+                          maxLengthEnforced: true,
                           controller: createRoomName,
                           decoration: InputDecoration(
                               labelText: 'Oda İsmi',
@@ -68,6 +70,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                       ),
                       Visibility(
                         child: TextFormField(
+                          maxLength: 20,
+                          maxLengthEnforced: true,
                           controller: createUserName,
                           decoration: InputDecoration(
                               labelText: 'Kullanıcı İsmin',
@@ -200,6 +204,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                     children: <Widget>[
                       Visibility(
                         child: TextFormField(
+                          maxLength: 20,
+                          maxLengthEnforced: true,
                           controller: addUserName,
                           decoration: InputDecoration(
                               labelText: 'Kullanıcı İsmin',
@@ -219,6 +225,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                       Visibility(
                         child: TextFormField(
                           controller: addRoomName,
+                          maxLength: 20,
+                          maxLengthEnforced: true,
                           decoration: InputDecoration(
                               labelText: 'Oda Anahtarı',
                               border: OutlineInputBorder()),
