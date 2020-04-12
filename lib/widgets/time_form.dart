@@ -14,6 +14,7 @@ class _TimeFormState extends State<TimeForm> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
       child: Container(
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -21,8 +22,8 @@ class _TimeFormState extends State<TimeForm> {
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  Text('Mesai Başlangıç Saati'),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -34,15 +35,20 @@ class _TimeFormState extends State<TimeForm> {
                           maxLengthEnforced: true,
                           keyboardType: TextInputType.number,
                           validator: (val) {
-                            if (val.isEmpty)
+                            if (val.isEmpty ||
+                                (int.parse(val) > 24 || int.parse(val) < 0))
                               return ' ';
                             else
                               return null;
                           },
                         ),
                       ),
-                      SizedBox(
-                        width: 20,
+                      Container(
+                        padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                        child: Text(
+                          ':',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       Container(
                         width: 30,
@@ -52,7 +58,8 @@ class _TimeFormState extends State<TimeForm> {
                           maxLengthEnforced: true,
                           keyboardType: TextInputType.number,
                           validator: (val) {
-                            if (val.isEmpty)
+                            if (val.isEmpty ||
+                                (int.parse(val) > 60 || int.parse(val) < 0))
                               return ' ';
                             else
                               return null;
@@ -61,7 +68,11 @@ class _TimeFormState extends State<TimeForm> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 15),
+                  Divider(
+                    thickness: 1.0,
+                  ),
+                  Text('Mesai Bitiş Saati'),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -73,25 +84,30 @@ class _TimeFormState extends State<TimeForm> {
                           maxLengthEnforced: true,
                           keyboardType: TextInputType.number,
                           validator: (val) {
-                            if (val.isEmpty)
+                            if (val.isEmpty ||
+                                (int.parse(val) > 24 || int.parse(val) < 0))
                               return ' ';
                             else
                               return null;
                           },
                         ),
                       ),
-                      SizedBox(
-                        width: 20,
+                      Container(
+                        padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                        child: Text(
+                          ':',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       Container(
                         width: 30,
                         child: TextFormField(
                           maxLength: 2,
                           controller: endMinute,
-                          maxLengthEnforced: true,
                           keyboardType: TextInputType.number,
                           validator: (val) {
-                            if (val.isEmpty)
+                            if (val.isEmpty ||
+                                (int.parse(val) > 60 || int.parse(val) < 0))
                               return ' ';
                             else
                               return null;
@@ -109,7 +125,7 @@ class _TimeFormState extends State<TimeForm> {
                           style: TextStyle(color: Colors.grey),
                         ),
                         onPressed: () {
-                          Navigator.pop(context,[]);
+                          Navigator.pop(context, null);
                         },
                       ),
                       FlatButton(
@@ -118,8 +134,14 @@ class _TimeFormState extends State<TimeForm> {
                           style: TextStyle(color: Colors.blueAccent),
                         ),
                         onPressed: () {
+                          List<String> hoursAndMinutes = [
+                              startHour.text,
+                              startMinute.text,
+                              endHour.text,
+                              endMinute.text
+                            ];
                           if (_formKey.currentState.validate()) {
-                            Navigator.of(context).pop([startHour.text, startMinute.text, endHour.text, endMinute.text]);
+                            Navigator.of(context).pop(hoursAndMinutes);
                           }
                         },
                       ),

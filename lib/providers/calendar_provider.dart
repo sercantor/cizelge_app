@@ -32,8 +32,8 @@ class CalendarProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setDateMap(String date, List<String> startAndEndTime) {
-    _datesMap.putIfAbsent(date.toString(), () => startAndEndTime);
+  void setDateMap(String date, List<String> hoursAndMinutes) {
+    _datesMap.putIfAbsent(date.toString(), () => hoursAndMinutes);
     notifyListeners();
   }
 

@@ -7,24 +7,23 @@ import 'package:provider/provider.dart';
 import 'package:cizelge_app/providers/calendar_provider.dart';
 import 'package:cizelge_app/services/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'dart:async';
 
 class Calendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     final Brightness brightnessValue =
         MediaQuery.of(context).platformBrightness;
     final calendarProvider = Provider.of<CalendarProvider>(context);
     final db = Provider.of<DatabaseService>(context);
 
     return CalendarCarousel(
-      onDayPressed: (DateTime date, List<Event> events) async{
+      onDayPressed: (DateTime date, List<Event> events) async {
+        calendarProvider.setDateCursor(date);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         print(prefs.getString('datesMap'));
         if (!calendarProvider.datesList.contains(date.millisecondsSinceEpoch)) {
-          //TODO: clean this up
-          showDialog(
+          List<String> hoursAndMinutes = await showDialog(
               context: context,
               builder: (_) {
                 final db = Provider.of<DatabaseService>(context, listen: false);
@@ -32,18 +31,16 @@ class Calendar extends StatelessWidget {
                   value: db,
                   child: TimeForm(),
                 );
-              }).then((hoursAndMinutes) {
-            if (hoursAndMinutes.isNotEmpty) {
-              calendarProvider.setDateCursor(date);
-              calendarProvider.setDate(date);
-              calendarProvider.setDateMap(
-                  date.millisecondsSinceEpoch.toString(), hoursAndMinutes);
-            }
-          });
+              });
+          if (hoursAndMinutes != null) {
+            calendarProvider.setDate(date);
+            calendarProvider.setDateMap(
+                date.millisecondsSinceEpoch.toString(), hoursAndMinutes);
+          }
         } else {
-          calendarProvider.setDateCursor(date);
           calendarProvider.setDate(date);
-          calendarProvider.removeDateMap(date.millisecondsSinceEpoch.toString());
+          calendarProvider
+              .removeDateMap(date.millisecondsSinceEpoch.toString());
         }
       },
       // popup on longpress, show coworkers working on the same date, provide db to dialog
@@ -71,6 +68,14 @@ class Calendar extends StatelessWidget {
       selectedDateTime: calendarProvider.dateCursor,
       markedDatesMap: calendarProvider.markedDateMap,
       daysHaveCircularBorder: false,
+      markedDateWidget: Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: 1.0,
+        ),
+        color: Colors.blueAccent,
+        height: 7.0,
+        width: 8.5,
+      ),
       thisMonthDayBorderColor: Colors.grey,
       selectedDayButtonColor: Colors.green,
       minSelectedDate: DateTime.now().subtract(Duration(days: 1)),
