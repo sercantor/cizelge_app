@@ -24,7 +24,7 @@ class ShowCoworker extends StatelessWidget {
               children: <Widget>[
                 Center(
                   child: Text(
-                    'Ayın ${date.day}. Gününde Nöbet Yapanlar',
+                    'Ayın ${date.day}. Gününde Çalışanlar',
                     style:
                         TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
                   ),
@@ -55,12 +55,16 @@ class ShowCoworker extends StatelessWidget {
       ),
     );
   }
-    //I feel like this is highly inefficient (for querying) and very complex to read
-    //I need to figure out if this is OK or not
+
+  //I feel like this is highly inefficient (for querying) and very complex to read
+  //I need to figure out if this is OK or not
   Widget _buildList(
       BuildContext context, DocumentSnapshot document, DateTime date) {
     List<String> workStartingTime = List<String>();
     List<String> workEndingTime = List<String>();
+    //check the first index, if it is 24 or 16, then just print 24 or 16, else print
+    //manual data
+    bool checkIfFirstIndexIsFixed = false;
 
     //need to check if datesmap is empty, or I get error, this is a bad workaround
     for (int i = 0; i < 2; i++)
@@ -72,6 +76,10 @@ class ShowCoworker extends StatelessWidget {
       workEndingTime.add(document['datesmap']
               ['${date.millisecondsSinceEpoch.toString()}'][i]
           .toString());
+
+    if (workStartingTime[0] == '24' || workStartingTime [0] == '16') {
+      checkIfFirstIndexIsFixed = !checkIfFirstIndexIsFixed;
+    }
 
     return ListTile(
       leading: CircleAvatar(
@@ -85,8 +93,11 @@ class ShowCoworker extends StatelessWidget {
         document['displayid'].toString(),
         style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
       ),
-      subtitle: Text(
-          'Başlangıç saati - ${workStartingTime[0]} : ${workStartingTime[1]} \nBitiş Saati - ${workEndingTime[0]} : ${workEndingTime[1]}'),
+      //worst piece of software ever written
+      subtitle: checkIfFirstIndexIsFixed == true
+          ? Text(workStartingTime[0] == '24' ? '24 Saat' : '16 Saat')
+          : Text(
+              'Başlangıç saati - ${workStartingTime[0]} : ${workStartingTime[1]} \nBitiş Saati - ${workEndingTime[0]} : ${workEndingTime[1]}'),
     );
   }
 }

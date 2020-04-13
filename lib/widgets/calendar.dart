@@ -7,13 +7,10 @@ import 'package:provider/provider.dart';
 import 'package:cizelge_app/providers/calendar_provider.dart';
 import 'package:cizelge_app/services/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:async';
 
 class Calendar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final Brightness brightnessValue =
-        MediaQuery.of(context).platformBrightness;
     final calendarProvider = Provider.of<CalendarProvider>(context);
     final db = Provider.of<DatabaseService>(context);
 
@@ -58,13 +55,10 @@ class Calendar extends StatelessWidget {
                     );
                   });
             }
-          : null,
+          : (DateTime date) {},
       locale: 'TR',
       height: 400,
       width: 340,
-      daysTextStyle: brightnessValue == Brightness.dark
-          ? TextStyle(color: Colors.white)
-          : null,
       selectedDateTime: calendarProvider.dateCursor,
       markedDatesMap: calendarProvider.markedDateMap,
       daysHaveCircularBorder: false,

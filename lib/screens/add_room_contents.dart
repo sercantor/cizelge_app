@@ -88,6 +88,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                       Center(
                         child: Visibility(
                           child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0)),
                             //check internet connection before enabling the button
                             //probably should move this logic elsewhere
                             onPressed: (connectionStatus ==
@@ -125,6 +127,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                       ),
                       Visibility(
                         child: RaisedButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0)),
                           onPressed: (connectionStatus ==
                                       ConnectivityStatus.Cellular ||
                                   connectionStatus == ConnectivityStatus.Wifi)
@@ -146,11 +150,14 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                         height: 30.0,
                         color: Colors.red,
                       ),
-                      SelectableText(
-                        (db.roomRef != null)
-                            ? 'Oda anahtarın: ${db.roomRef}'
-                            : 'Oda anahatarı bulunamadı.',
-                        style: TextStyle(fontSize: 17.0),
+                      FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: SelectableText(
+                          (db.roomRef != null)
+                              ? 'Oda anahtarın: ${db.roomRef}'
+                              : 'Oda anahatarı bulunamadı.',
+                          style: TextStyle(fontSize: 17.0),
+                        ),
                       ),
                       Divider(
                         indent: 15.0,
@@ -164,15 +171,20 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                       ),
                       Visibility(
                         child: Container(
-                          child: Text(
-                            'Oda: ${db.roomName}',
-                            style: TextStyle(
-                                fontSize: 18.0, fontWeight: FontWeight.bold),
+                          child: FittedBox(
+                            fit: BoxFit.fitWidth,
+                            child: Text(
+                              '${db.roomName}',
+                              style: TextStyle(
+                                  fontSize: 18.0, fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
                         visible: db.roomRef != null,
                       ),
-                      SizedBox(height: 20.0,),
+                      SizedBox(
+                        height: 20.0,
+                      ),
                       Visibility(
                         child: StreamBuilder<QuerySnapshot>(
                             stream: db.queryDisplayId(),
@@ -185,8 +197,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                                     shrinkWrap: true,
                                     itemCount: snapshot.data.documents.length,
                                     itemBuilder: (context, index) {
-                                      return _buildUserList(
-                                          context,
+                                      return _buildUserList(context,
                                           snapshot.data.documents[index]);
                                     }),
                               );
@@ -241,6 +252,8 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                       ),
                       Visibility(
                         child: RaisedButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0)),
                           onPressed: (connectionStatus ==
                                       ConnectivityStatus.Cellular ||
                                   connectionStatus == ConnectivityStatus.Wifi)
@@ -284,8 +297,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
     );
   }
 
-  Widget _buildUserList(
-      BuildContext context, DocumentSnapshot document) {
+  Widget _buildUserList(BuildContext context, DocumentSnapshot document) {
     return ListTile(
       leading: CircleAvatar(
         radius: 20.0,

@@ -12,16 +12,24 @@ class SendDataButton extends StatelessWidget {
     var connectionStatus = Provider.of<ConnectivityStatus>(context);
 
     return Container(
-        child: RaisedButton(
-          child: Text('Seçtiğim Günleri İnternete Gönder', style: TextStyle(fontFamily: 'Montserrat'),),
-          onPressed: (db.roomRef != null && 
-          //check internet connection
-          (connectionStatus == ConnectivityStatus.Cellular || connectionStatus == ConnectivityStatus.Wifi))
-              ? () {
-                  db.updateUserData(calendarProvider.datesMap);
-                }
-              : null,
+      child: RaisedButton(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        child: Text(
+          'Seçtiğim Günleri İnternete Gönder',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+          ),
         ),
+        onPressed: (db.roomRef != null &&
+                //check internet connection
+                (connectionStatus == ConnectivityStatus.Cellular ||
+                    connectionStatus == ConnectivityStatus.Wifi))
+            ? () {
+                db.updateUserData(calendarProvider.datesMap);
+              }
+            : null,
+      ),
     );
   }
 }

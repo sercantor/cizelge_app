@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//form that shows up when the user clicks a day, it's a mess, I should handle the form logic in a different way
 class TimeForm extends StatefulWidget {
   @override
   _TimeFormState createState() => _TimeFormState();
@@ -11,6 +12,20 @@ class _TimeFormState extends State<TimeForm> {
   final TextEditingController startMinute = TextEditingController();
   final TextEditingController endHour = TextEditingController();
   final TextEditingController endMinute = TextEditingController();
+  final FocusNode startHourNode = FocusNode();
+  final FocusNode startMinuteNode = FocusNode();
+  final FocusNode endHourNode = FocusNode();
+  final FocusNode endMinuteNode = FocusNode();
+
+  @override
+  void dispose() {
+    startHour.dispose();
+    startMinute.dispose();
+    endHour.dispose();
+    endMinute.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -30,13 +45,19 @@ class _TimeFormState extends State<TimeForm> {
                       Container(
                         width: 30,
                         child: TextFormField(
+                          textInputAction: TextInputAction.next,
                           maxLength: 2,
+                          onChanged: (val) {
+                            _nextStep(
+                                val, context, startHourNode, startMinuteNode);
+                          },
                           controller: startHour,
+                          focusNode: startHourNode,
                           maxLengthEnforced: true,
                           keyboardType: TextInputType.number,
                           validator: (val) {
                             if (val.isEmpty ||
-                                (int.parse(val) > 24 || int.parse(val) < 0))
+                                (int.parse(val) > 23 || int.parse(val) < 0))
                               return ' ';
                             else
                               return null;
@@ -53,13 +74,19 @@ class _TimeFormState extends State<TimeForm> {
                       Container(
                         width: 30,
                         child: TextFormField(
+                          textInputAction: TextInputAction.next,
+                          onChanged: (val) {
+                            _nextStep(
+                                val, context, startMinuteNode, endHourNode);
+                          },
                           maxLength: 2,
+                          focusNode: startMinuteNode,
                           controller: startMinute,
                           maxLengthEnforced: true,
                           keyboardType: TextInputType.number,
                           validator: (val) {
                             if (val.isEmpty ||
-                                (int.parse(val) > 60 || int.parse(val) < 0))
+                                (int.parse(val) > 59 || int.parse(val) < 0))
                               return ' ';
                             else
                               return null;
@@ -68,10 +95,7 @@ class _TimeFormState extends State<TimeForm> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 15),
-                  Divider(
-                    thickness: 1.0,
-                  ),
+                  SizedBox(height: 30),
                   Text('Mesai Bitiş Saati'),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -81,11 +105,15 @@ class _TimeFormState extends State<TimeForm> {
                         child: TextFormField(
                           maxLength: 2,
                           controller: endHour,
+                          onChanged: (val) {
+                            _nextStep(val, context, endHourNode, endMinuteNode);
+                          },
+                          focusNode: endHourNode,
                           maxLengthEnforced: true,
                           keyboardType: TextInputType.number,
                           validator: (val) {
                             if (val.isEmpty ||
-                                (int.parse(val) > 24 || int.parse(val) < 0))
+                                (int.parse(val) > 23 || int.parse(val) < 0))
                               return ' ';
                             else
                               return null;
@@ -103,11 +131,12 @@ class _TimeFormState extends State<TimeForm> {
                         width: 30,
                         child: TextFormField(
                           maxLength: 2,
+                          focusNode: endMinuteNode,
                           controller: endMinute,
                           keyboardType: TextInputType.number,
                           validator: (val) {
                             if (val.isEmpty ||
-                                (int.parse(val) > 60 || int.parse(val) < 0))
+                                (int.parse(val) > 59 || int.parse(val) < 0))
                               return ' ';
                             else
                               return null;
@@ -116,6 +145,7 @@ class _TimeFormState extends State<TimeForm> {
                       ),
                     ],
                   ),
+                  SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -129,24 +159,52 @@ class _TimeFormState extends State<TimeForm> {
                         },
                       ),
                       FlatButton(
+                        textColor: Colors.white,
+                        child: Text('24 saat'),
+                        color: Colors.redAccent,
+                        onPressed: () {
+                          List<String> hoursAndMinutes = [
+                            '24',
+                            'saat',
+                            '24',
+                            'saat'
+                          ];
+                          Navigator.of(context).pop(hoursAndMinutes);
+                        },
+                      ),
+                      FlatButton(
                         child: Text(
                           'Onayla',
                           style: TextStyle(color: Colors.blueAccent),
                         ),
                         onPressed: () {
                           List<String> hoursAndMinutes = [
-                              startHour.text,
-                              startMinute.text,
-                              endHour.text,
-                              endMinute.text
-                            ];
+                            startHour.text,
+                            startMinute.text,
+                            endHour.text,
+                            endMinute.text
+                          ];
                           if (_formKey.currentState.validate()) {
                             Navigator.of(context).pop(hoursAndMinutes);
                           }
                         },
                       ),
                     ],
-                  )
+                  ),
+                  FlatButton(
+                    textColor: Colors.white,
+                    child: Text('16 saat'),
+                    color: Colors.orangeAccent,
+                    onPressed: () {
+                      List<String> hoursAndMinutes = [
+                        '16',
+                        'saat',
+                        '16',
+                        'saat'
+                      ];
+                      Navigator.of(context).pop(hoursAndMinutes);
+                    },
+                  ),
                 ],
               ),
             ),
@@ -154,5 +212,14 @@ class _TimeFormState extends State<TimeForm> {
         ),
       ),
     );
+  }
+
+  void _nextStep(String val, BuildContext context, FocusNode currentNode,
+      FocusNode nextNode) {
+    if (val.length == 2) {
+      print(val);
+      currentNode.unfocus();
+      FocusScope.of(context).requestFocus(nextNode);
+    }
   }
 }
