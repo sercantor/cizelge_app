@@ -12,6 +12,7 @@ class _AddRoomButtonState extends State<AddRoomButton> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
         onPressed: () {
           final db = Provider.of<DatabaseService>(context, listen: false);
           Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -19,6 +20,6 @@ class _AddRoomButtonState extends State<AddRoomButton> {
                 value: db, child: AddRoomContents());
           }));
         },
-        child: Icon(Icons.add));
+        child: Icon(Icons.home));
   }
 }

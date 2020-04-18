@@ -29,6 +29,8 @@
 .pub-cache/
 .pub/
 /build/
+android/key.properties
+android/external/cizelge.jks
 
 # Web related
 lib/generated_plugin_registrant.dart

@@ -27,15 +27,21 @@ dependencies:
   shared_preferences: 0.5.3+5
   provider: ^4.0.4
   cloud_firestore: ^0.13.4+1
-  firebase_core: ^0.4.4+2
   firebase_auth: ^0.15.5+2
   google_sign_in: ^4.3.0
+  connectivity: ^0.4.8+2
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   
+  flutter_launcher_icons: "^0.7.3"
+
+flutter_icons:
+  image_path: "assets/logo.png"
+  android: true
+  ios: true
 
 
 # For information on the generic Dart part of this file, see the
@@ -53,6 +59,7 @@ flutter:
   assets:
     - ./lib/assets/google_logo.png
     - ./lib/assets/logo.png
+    - ./lib/assets/x.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -65,10 +72,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: Montserrat
+      fonts:
+      - asset: ./lib/assets/Montserrat-Medium.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

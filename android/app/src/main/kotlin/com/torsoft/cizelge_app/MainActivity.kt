@@ -1,4 +1,4 @@
-package com.example.cizelge_app
+package com.torsoft.cizelge_app
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity
