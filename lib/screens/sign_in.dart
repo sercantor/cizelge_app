@@ -1,5 +1,7 @@
+import 'package:cizelge_app/models/connectivity_status.dart';
 import 'package:cizelge_app/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SignIn extends StatefulWidget {
   @override
@@ -12,6 +14,8 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
+    var connectionStatus = Provider.of<ConnectivityStatus>(context);
+
     return Scaffold(
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
@@ -19,15 +23,23 @@ class _SignInState extends State<SignIn> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Center(child: 
-              Image(image: AssetImage('./lib/assets/logo.png'),)),
-              SizedBox(height: 20,),
+              Center(
+                  child: Image(
+                image: AssetImage('./lib/assets/logo.png'),
+              )),
+              SizedBox(
+                height: 20,
+              ),
               Center(
                 child: OutlineButton(
                   splashColor: Colors.grey,
-                  onPressed: () async {
-                    _auth.googleSignIn();
-                  },
+                  disabledBorderColor: Colors.red,
+                  onPressed: (connectionStatus == ConnectivityStatus.Cellular ||
+                          connectionStatus == ConnectivityStatus.Wifi)
+                      ? () {
+                          _auth.googleSignIn();
+                        }
+                      : null,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40)),
                   highlightElevation: 0,

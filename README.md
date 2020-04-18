@@ -22,4 +22,4 @@ My brother complained that there is no simple application which you can just sel
 - View each others' schedule by long pressing the date
 - [ ] Add more sign-in methods
 - [ ] Add more tabs
-- [ ] Add shift hours
+- [x] Add shift hours
