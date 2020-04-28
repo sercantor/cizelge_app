@@ -7,20 +7,17 @@ class DatabaseService with ChangeNotifier {
   Firestore _db;
   String _roomRef;
   String _userRef;
-  String _roomName;
   DatabaseService() {
     _db = Firestore.instance;
     loadReferencesFromLocal();
   }
 
-  //TODO: useRref is useless here
   String get roomRef => _roomRef;
   String get userRef => _userRef;
-  String get roomName => _roomName;
 
   // setters
-  setReferences(String uid) async {
-    _roomRef = _db.collection('rooms').document().documentID;
+  void setReferences(String uid, String roomName) {
+    _roomRef = roomName;
     _userRef = uid;
     notifyListeners();
   }
@@ -28,9 +25,7 @@ class DatabaseService with ChangeNotifier {
   loadReferencesFromLocal() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String roomKeyFromLocal = prefs.getString('roomkey');
-    String roomName = prefs.getString('roomid');
 
-    _roomName = roomName;
     _roomRef = roomKeyFromLocal;
     notifyListeners();
   }
@@ -43,14 +38,15 @@ class DatabaseService with ChangeNotifier {
     prefs.remove('userid');
   }
 
-  setRoomData(String roomID) {
-    _db.collection('rooms').document('$_roomRef').setData({'roomid': roomID});
-    _roomName = roomID;
+  setRoomData(String roomName, String roomPassword) {
+    _db
+        .collection('rooms')
+        .document('$_roomRef')
+        .setData({'roomid': roomName, 'roompassword': roomPassword});
     notifyListeners();
   }
 
   setUserData(String displayID, String avatar) {
-    print(avatar);
     _db
         .collection('rooms')
         .document('$_roomRef')
@@ -69,6 +65,15 @@ class DatabaseService with ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('roomkey', '$_roomRef');
     prefs.setString('userkey', '$_userRef');
+  }
+
+  Future<bool> roomNameExists(String roomName) async {
+    DocumentSnapshot roomDocument =
+        await _db.collection('rooms').document(roomName).get();
+    if (roomDocument.exists)
+      return true;
+    else
+      return false;
   }
 
   updateUserData(Map<String, dynamic> datesMap) async {
@@ -91,13 +96,13 @@ class DatabaseService with ChangeNotifier {
   }
 
   Future<bool> addUserToRoom(
-      String displayID, String roomKey, String uid, String avatar) async {
+      String displayID, String roomKey, String roomPassword, String uid, String avatar) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     DocumentSnapshot roomDocument =
         await _db.collection('rooms').document(roomKey).get();
     bool didEnterRoom = false;
 
-    if (roomDocument.exists) {
+    if (roomDocument.exists && roomPassword == roomDocument['roompassword']) {
       _roomRef = roomKey;
       notifyListeners();
       _db
@@ -118,8 +123,6 @@ class DatabaseService with ChangeNotifier {
   }
 
   Future<void> exitRoom(String uid) async {
-    print(_roomRef);
-    print(uid);
     QuerySnapshot query = await _db
         .collection('rooms')
         .document(_roomRef)
@@ -136,13 +139,11 @@ class DatabaseService with ChangeNotifier {
       _db.collection('rooms').document(_roomRef).delete();
       _roomRef = null;
       _userRef = null;
-      _roomName = null;
       notifyListeners();
     } else {
       _db.document('rooms/$_roomRef/users/$uid').delete();
       _roomRef = null;
       _userRef = null;
-      _roomName = null;
       notifyListeners();
     }
   }
@@ -152,8 +153,7 @@ class DatabaseService with ChangeNotifier {
         .collection('rooms')
         .document(_roomRef)
         .collection('users')
-        .where('datesmap.${date.toString()}', isGreaterThan: [])
-        .snapshots();
+        .where('datesmap.${date.toString()}', isGreaterThan: []).snapshots();
   }
 
   Stream<QuerySnapshot> queryDisplayId() {
@@ -162,12 +162,5 @@ class DatabaseService with ChangeNotifier {
         .document(_roomRef)
         .collection('users')
         .snapshots();
-  }
-
-  Future<void> queryRoomName() async {
-    _db.collection('rooms').document(_roomRef).get().then((doc) {
-      _roomName = doc['roomid'].toString();
-      notifyListeners();
-    });
   }
 }

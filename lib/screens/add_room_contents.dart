@@ -4,7 +4,6 @@ import 'package:cizelge_app/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 List<GlobalKey<FormState>> _formKeys = [
   GlobalKey<FormState>(),
@@ -18,16 +17,16 @@ class AddRoomContents extends StatefulWidget {
 
 class _AddRoomContentsState extends State<AddRoomContents> {
   final TextEditingController createRoomName = TextEditingController();
-  final TextEditingController createUserName = TextEditingController();
+  final TextEditingController createRoomPassword = TextEditingController();
   final TextEditingController addRoomName = TextEditingController();
-  final TextEditingController addUserName = TextEditingController();
+  final TextEditingController addRoomPassword = TextEditingController();
 
   @override
   void dispose() {
     createRoomName.dispose();
-    createUserName.dispose();
+    createRoomPassword.dispose();
     addRoomName.dispose();
-    addUserName.dispose();
+    addRoomPassword.dispose();
     super.dispose();
   }
 
@@ -44,6 +43,19 @@ class _AddRoomContentsState extends State<AddRoomContents> {
           padding: EdgeInsets.all(15.0),
           child: Column(
             children: <Widget>[
+              Visibility(
+                child: Text(
+                  'Oda Oluştur',
+                  style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
+                ),
+                visible: db.roomRef == null,
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
               Form(
                 key: _formKeys[0],
                 child: Container(
@@ -73,13 +85,14 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                         child: TextFormField(
                           maxLength: 20,
                           maxLengthEnforced: true,
-                          controller: createUserName,
+                          controller: createRoomPassword,
+                          obscureText: true,
                           decoration: InputDecoration(
-                              labelText: 'Kullanıcı İsmin',
+                              labelText: 'Oda Şifresi',
                               border: OutlineInputBorder()),
                           validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Kullanıcı ismi boş olamaz.';
+                            if (value.isEmpty || value.length < 6) {
+                              return 'Oda şifresi en az 6 karakter olmalıdır.';
                             }
                             return null;
                           },
@@ -96,25 +109,34 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                             onPressed: (connectionStatus ==
                                         ConnectivityStatus.Cellular ||
                                     connectionStatus == ConnectivityStatus.Wifi)
-                                ? () {
+                                ? () async {
                                     if (_formKeys[0].currentState.validate() &&
                                         db.roomRef == null) {
-                                      db.setReferences(user.uid);
-                                      db.saveReferencesToLocal();
-                                      db.setRoomData(createRoomName.text);
-                                      db.saveRoomDataLocal(createRoomName.text,
-                                          createUserName.text);
-                                      db.setUserData(
-                                          createUserName.text, user.avatar);
-                                      Scaffold.of(context).showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  'Oda Başarıyla kuruldu')));
-                                    } else {
-                                      Scaffold.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text('Oda kuluramadı.'),
-                                      ));
+                                      if (!await db.roomNameExists(
+                                          createRoomName.text)) {
+                                        db.setReferences(
+                                            user.uid, createRoomName.text);
+                                        db.saveReferencesToLocal();
+                                        db.setRoomData(createRoomName.text,
+                                            createRoomPassword.text);
+                                        db.saveRoomDataLocal(
+                                            createRoomName.text,
+                                            createRoomPassword.text);
+                                        db.setUserData(
+                                          user.displayName,
+                                          user.avatar,
+                                        );
+                                        Scaffold.of(context).showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Oda Başarıyla kuruldu')));
+                                      } else {
+                                        Scaffold.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Text(
+                                              'Oda kuluramadı. Aynı isimli başka bir oda olabilir.'),
+                                        ));
+                                      }
                                     }
                                   }
                                 : null,
@@ -124,58 +146,24 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                         ),
                       ),
                       SizedBox(
-                        height: 10.0,
+                        height: 30.0,
                       ),
                       Visibility(
-                        child: RaisedButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0)),
-                          onPressed: (connectionStatus ==
-                                      ConnectivityStatus.Cellular ||
-                                  connectionStatus == ConnectivityStatus.Wifi)
-                              ? () {
-                                  db.exitRoom(user.uid);
-                                  db.deleteFromLocal();
-                                }
-                              : null,
-                          child: Text(
-                            'Odadan Çık',
-                          ),
+                        child: Text(
+                          'Bir Odaya Katıl',
+                          style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue),
                         ),
-                        visible: (db.roomRef != null),
-                      ),
-                      Divider(
-                        indent: 15.0,
-                        endIndent: 15.0,
-                        thickness: 2.5,
-                        height: 30.0,
-                        color: Colors.red,
-                      ),
-                      FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: SelectableText(
-                          (db.roomRef != null)
-                              ? 'Oda anahtarın: ${db.roomRef}'
-                              : 'Oda anahatarı bulunamadı.',
-                          style: TextStyle(fontSize: 17.0),
-                        ),
-                      ),
-                      Divider(
-                        indent: 15.0,
-                        endIndent: 15.0,
-                        thickness: 2.5,
-                        height: 30.0,
-                        color: Colors.red,
-                      ),
-                      SizedBox(
-                        height: 20.0,
+                        visible: db.roomRef == null,
                       ),
                       Visibility(
                         child: Container(
                           child: FittedBox(
                             fit: BoxFit.fitWidth,
                             child: Text(
-                              '${db.roomName}',
+                              '${db.roomRef}',
                               style: TextStyle(
                                   fontSize: 18.0, fontWeight: FontWeight.bold),
                             ),
@@ -216,15 +204,33 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                     children: <Widget>[
                       Visibility(
                         child: TextFormField(
+                          controller: addRoomName,
                           maxLength: 20,
                           maxLengthEnforced: true,
-                          controller: addUserName,
                           decoration: InputDecoration(
-                              labelText: 'Kullanıcı İsmin',
+                              labelText: 'Oda İsmi',
                               border: OutlineInputBorder()),
                           validator: (value) {
                             if (value.isEmpty) {
-                              return 'Kullanıcı ismi boş olamaz.';
+                              return 'Oda ismi girilmek zorunda.';
+                            }
+                            return null;
+                          },
+                        ),
+                        visible: (db.roomRef == null),
+                      ),
+                      Visibility(
+                        child: TextFormField(
+                          maxLength: 20,
+                          obscureText: true,
+                          maxLengthEnforced: true,
+                          controller: addRoomPassword,
+                          decoration: InputDecoration(
+                              labelText: 'Oda Şifresi',
+                              border: OutlineInputBorder()),
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Oda şifresi girilmek zorunda.';
                             }
                             return null;
                           },
@@ -233,23 +239,6 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                       ),
                       SizedBox(
                         height: 20,
-                      ),
-                      Visibility(
-                        child: TextFormField(
-                          controller: addRoomName,
-                          maxLength: 20,
-                          maxLengthEnforced: true,
-                          decoration: InputDecoration(
-                              labelText: 'Oda Anahtarı',
-                              border: OutlineInputBorder()),
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Senle paylaşılan oda anahtarını gir.';
-                            }
-                            return null;
-                          },
-                        ),
-                        visible: (db.roomRef == null),
                       ),
                       Visibility(
                         child: RaisedButton(
@@ -261,11 +250,11 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                               ? () async {
                                   if (_formKeys[1].currentState.validate()) {
                                     if (await db.addUserToRoom(
-                                        addUserName.text,
+                                        user.displayName,
                                         addRoomName.text,
+                                        addRoomPassword.text,
                                         user.uid,
                                         user.avatar)) {
-                                      db.queryRoomName();
                                       Scaffold.of(context).showSnackBar(
                                         SnackBar(
                                           content:
@@ -276,7 +265,7 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                                       Scaffold.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                              'Odaya girilemedi. Anahtarı yanlış girmiş olabilir misin?'),
+                                              'Odaya girilemedi. Şifreyi veya oda ismini yanlış girmiş olabilir misin?'),
                                         ),
                                       );
                                     }
@@ -286,6 +275,24 @@ class _AddRoomContentsState extends State<AddRoomContents> {
                           child: Text('Odaya Gir'),
                         ),
                         visible: db.roomRef == null,
+                      ),
+                      Visibility(
+                        child: RaisedButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0)),
+                          onPressed: (connectionStatus ==
+                                      ConnectivityStatus.Cellular ||
+                                  connectionStatus == ConnectivityStatus.Wifi)
+                              ? () {
+                                  db.exitRoom(user.uid);
+                                  db.deleteFromLocal();
+                                }
+                              : null,
+                          child: Text(
+                            'Odadan Çık',
+                          ),
+                        ),
+                        visible: (db.roomRef != null),
                       ),
                     ],
                   ),
